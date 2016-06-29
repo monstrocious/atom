@@ -1,0 +1,27 @@
+"*":
+  core:
+    disabledPackages: [
+      "whitespace"
+    ]
+    themes: [
+      "seti-ui"
+      "seti-syntax"
+    ]
+  editor:
+    fontSize: 12
+    invisibles: {}
+    tabLength: 4
+  "exception-reporting":
+    userId: "5a4a495f-99a9-50cd-f05c-85c2c77cc414"
+  minimap:
+    plugins:
+      bookmarks: true
+      "find-and-replace": true
+      selection: true
+      "split-diff": true
+  "one-light-ui": {}
+  "save-session":
+    dataSaveFolder: "/Users/Mo/.atom/packages/save-session/projects"
+  "tree-view": {}
+  welcome:
+    showOnStartup: false

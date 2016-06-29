@@ -1,0 +1,73 @@
+{
+  "name": "minimap-split-diff",
+  "main": "./lib/minimap-split-diff",
+  "version": "0.3.0",
+  "description": "A minimap plugin for the Split Diff package",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mupchrch/minimap-split-diff.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  },
+  "consumedServices": {
+    "minimap": {
+      "versions": {
+        "1.0.0": "consumeMinimapServiceV1"
+      }
+    }
+  },
+  "dependencies": {
+    "event-kit": ">= 0.7.2"
+  },
+  "readme": "# minimap-split-diff package\n\nA minimap plugin for the Split Diff package.\n\n![Minimap Split Diff plugin in action](https://github.com/mupchrch/minimap-split-diff/raw/master/demo.gif)\n",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/mupchrch/minimap-split-diff/issues"
+  },
+  "homepage": "https://github.com/mupchrch/minimap-split-diff#readme",
+  "_id": "minimap-split-diff@0.3.0",
+  "_shasum": "9cfb15cbc2aeed94ba2cd4132a55b9c195794bc6",
+  "_resolved": "file:../d-116015-37199-37zma9/package.tgz",
+  "_from": "../d-116015-37199-37zma9/package.tgz",
+  "_atomModuleCache": {
+    "version": 1,
+    "dependencies": [
+      {
+        "name": "event-kit",
+        "version": "2.0.0",
+        "path": "node_modules/event-kit/lib/event-kit.js"
+      }
+    ],
+    "extensions": {
+      ".coffee": [
+        "lib/minimap-split-diff-binding.coffee",
+        "lib/minimap-split-diff.coffee"
+      ],
+      ".json": [
+        "node_modules/event-kit/api.json",
+        "node_modules/event-kit/package.json",
+        "package.json"
+      ],
+      ".js": [
+        "node_modules/event-kit/lib/composite-disposable.js",
+        "node_modules/event-kit/lib/disposable.js",
+        "node_modules/event-kit/lib/emitter.js",
+        "node_modules/event-kit/lib/event-kit.js"
+      ]
+    },
+    "folders": [
+      {
+        "paths": [
+          "lib",
+          "",
+          "spec"
+        ],
+        "dependencies": {
+          "event-kit": ">= 0.7.2"
+        }
+      }
+    ]
+  }
+}

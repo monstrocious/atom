@@ -1,7 +1,8 @@
-'use babel'
+'use strict'
 
-import Mixin from 'mixto'
-import { CompositeDisposable } from 'atom'
+const Mixin = require('mixto')
+
+let CompositeDisposable
 
 /**
  * Provides methods to manage minimap plugins.
@@ -18,7 +19,7 @@ import { CompositeDisposable } from 'atom'
  *
  * @access public
  */
-export default class PluginManagement extends Mixin {
+module.exports = class PluginManagement extends Mixin {
   /**
    * Returns the Minimap main module instance.
    *
@@ -46,6 +47,14 @@ export default class PluginManagement extends Mixin {
      * @access private
      */
     this.pluginsSubscriptions = {}
+
+    /**
+     * A map that stores the display order for each plugin
+     *
+     * @type {Object}
+     * @access private
+     */
+    this.pluginsOrderMap = {}
   }
 
   /**
@@ -60,6 +69,10 @@ export default class PluginManagement extends Mixin {
    *                              the registration.
    */
   registerPlugin (name, plugin) {
+    if (!CompositeDisposable) {
+      CompositeDisposable = require('atom').CompositeDisposable
+    }
+
     this.plugins[name] = plugin
     this.pluginsSubscriptions[name] = new CompositeDisposable()
 
@@ -149,18 +162,37 @@ export default class PluginManagement extends Mixin {
    * @access private
    */
   updatesPluginActivationState (name) {
-    let plugin = this.plugins[name]
-    let pluginActive = plugin.isActive()
-    let settingActive = atom.config.get(`minimap.plugins.${name}`)
-    let event = { name: name, plugin: plugin }
+    const plugin = this.plugins[name]
+    const pluginActive = plugin.isActive()
+    const settingActive = atom.config.get(`minimap.plugins.${name}`)
 
-    if (settingActive && !pluginActive) {
-      plugin.activatePlugin()
-      this.emitter.emit('did-activate-plugin', event)
-    } else if (pluginActive && !settingActive) {
-      plugin.deactivatePlugin()
-      this.emitter.emit('did-deactivate-plugin', event)
+    if (atom.config.get('minimap.displayPluginsControls')) {
+      if (settingActive && !pluginActive) {
+        this.activatePlugin(name, plugin)
+      } else if (pluginActive && !settingActive) {
+        this.deactivatePlugin(name, plugin)
+      }
+    } else {
+      if (!pluginActive) {
+        this.activatePlugin(name, plugin)
+      } else if (pluginActive) {
+        this.deactivatePlugin(name, plugin)
+      }
     }
+  }
+
+  activatePlugin (name, plugin) {
+    const event = { name: name, plugin: plugin }
+
+    plugin.activatePlugin()
+    this.emitter.emit('did-activate-plugin', event)
+  }
+
+  deactivatePlugin (name, plugin) {
+    const event = { name: name, plugin: plugin }
+
+    plugin.deactivatePlugin()
+    this.emitter.emit('did-deactivate-plugin', event)
   }
 
   /**
@@ -178,19 +210,41 @@ export default class PluginManagement extends Mixin {
    * @access private
    */
   registerPluginControls (name, plugin) {
-    let settingsKey = `minimap.plugins.${name}`
+    const settingsKey = `minimap.plugins.${name}`
+    const orderSettingsKey = `minimap.plugins.${name}DecorationsZIndex`
 
-    this.config.plugins.properties[name] = {
+    const config = this.getConfigSchema()
+
+    config.plugins.properties[name] = {
       type: 'boolean',
+      title: name,
+      description: `Whether the ${name} plugin is activated and displayed in the Minimap.`,
       default: true
+    }
+
+    config.plugins.properties[`${name}DecorationsZIndex`] = {
+      type: 'integer',
+      title: `${name} decorations order`,
+      description: `The relative order of the ${name} plugin's decorations in the layer into which they are drawn. Note that this order only apply inside a layer, so highlight-over decorations will always be displayed above line decorations as they are rendered in different layers.`,
+      default: 0
     }
 
     if (atom.config.get(settingsKey) === undefined) {
       atom.config.set(settingsKey, true)
     }
 
+    if (atom.config.get(orderSettingsKey) === undefined) {
+      atom.config.set(orderSettingsKey, 0)
+    }
+
     this.pluginsSubscriptions[name].add(atom.config.observe(settingsKey, () => {
       this.updatesPluginActivationState(name)
+    }))
+
+    this.pluginsSubscriptions[name].add(atom.config.observe(orderSettingsKey, (order) => {
+      this.updatePluginsOrderMap(name)
+      const event = { name: name, plugin: plugin, order: order }
+      this.emitter.emit('did-change-plugin-order', event)
     }))
 
     this.pluginsSubscriptions[name].add(atom.commands.add('atom-workspace', {
@@ -198,7 +252,28 @@ export default class PluginManagement extends Mixin {
         this.togglePluginActivation(name)
       }
     }))
+
+    this.updatePluginsOrderMap(name)
   }
+
+  /**
+   * Updates the display order in the map for the passed-in plugin name.
+   *
+   * @param  {string} name the name of the plugin to update
+   * @access private
+   */
+  updatePluginsOrderMap (name) {
+    const orderSettingsKey = `minimap.plugins.${name}DecorationsZIndex`
+
+    this.pluginsOrderMap[name] = atom.config.get(orderSettingsKey)
+  }
+
+  /**
+   * Returns the plugins display order mapped by name.
+   *
+   * @return {Object} The plugins order by name
+   */
+  getPluginsOrder () { return this.pluginsOrderMap }
 
   /**
    * When the `minimap.displayPluginsControls` setting is toggled,
@@ -211,6 +286,6 @@ export default class PluginManagement extends Mixin {
   unregisterPluginControls (name) {
     this.pluginsSubscriptions[name].dispose()
     delete this.pluginsSubscriptions[name]
-    delete this.config.plugins.properties[name]
+    delete this.getConfigSchema().plugins.properties[name]
   }
 }

@@ -1,17 +1,50 @@
 {
-  "name": "minimap-split-diff",
-  "main": "./lib/minimap-split-diff",
-  "version": "0.3.0",
-  "description": "A minimap plugin for the Split Diff package",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mupchrch/minimap-split-diff.git"
+  "_args": [
+    [
+      {
+        "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73045-aar8tb/package.tgz",
+        "scope": null,
+        "escapedName": null,
+        "name": null,
+        "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73045-aar8tb/package.tgz",
+        "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73045-aar8tb/package.tgz",
+        "type": "local"
+      },
+      "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-117229-73045-p2km5p"
+    ]
+  ],
+  "_from": "../d-117229-73045-aar8tb/package.tgz",
+  "_id": "minimap-split-diff@0.3.7",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/minimap-split-diff",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73045-aar8tb/package.tgz",
+    "scope": null,
+    "escapedName": null,
+    "name": null,
+    "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73045-aar8tb/package.tgz",
+    "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73045-aar8tb/package.tgz",
+    "type": "local"
   },
-  "license": "MIT",
-  "engines": {
-    "atom": ">0.50.0"
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "file:../d-117229-73045-aar8tb/package.tgz",
+  "_shasum": "2d0c3bec610422069f976fd12798a3b549224e9b",
+  "_shrinkwrap": null,
+  "_spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73045-aar8tb/package.tgz",
+  "_where": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-117229-73045-p2km5p",
+  "bugs": {
+    "url": "https://github.com/mupchrch/minimap-split-diff/issues"
   },
   "consumedServices": {
+    "split-diff": {
+      "versions": {
+        "1.0.0": "consumeSplitDiff"
+      }
+    },
     "minimap": {
       "versions": {
         "1.0.0": "consumeMinimapServiceV1"
@@ -21,53 +54,21 @@
   "dependencies": {
     "event-kit": ">= 0.7.2"
   },
-  "readme": "# minimap-split-diff package\n\nA minimap plugin for the Split Diff package.\n\n![Minimap Split Diff plugin in action](https://github.com/mupchrch/minimap-split-diff/raw/master/demo.gif)\n",
-  "readmeFilename": "README.md",
-  "bugs": {
-    "url": "https://github.com/mupchrch/minimap-split-diff/issues"
+  "description": "A minimap plugin for the Split Diff package",
+  "devDependencies": {},
+  "engines": {
+    "atom": ">= 1.14.0 < 2.0.0"
   },
   "homepage": "https://github.com/mupchrch/minimap-split-diff#readme",
-  "_id": "minimap-split-diff@0.3.0",
-  "_shasum": "9cfb15cbc2aeed94ba2cd4132a55b9c195794bc6",
-  "_resolved": "file:../d-116015-37199-37zma9/package.tgz",
-  "_from": "../d-116015-37199-37zma9/package.tgz",
-  "_atomModuleCache": {
-    "version": 1,
-    "dependencies": [
-      {
-        "name": "event-kit",
-        "version": "2.0.0",
-        "path": "node_modules/event-kit/lib/event-kit.js"
-      }
-    ],
-    "extensions": {
-      ".coffee": [
-        "lib/minimap-split-diff-binding.coffee",
-        "lib/minimap-split-diff.coffee"
-      ],
-      ".json": [
-        "node_modules/event-kit/api.json",
-        "node_modules/event-kit/package.json",
-        "package.json"
-      ],
-      ".js": [
-        "node_modules/event-kit/lib/composite-disposable.js",
-        "node_modules/event-kit/lib/disposable.js",
-        "node_modules/event-kit/lib/emitter.js",
-        "node_modules/event-kit/lib/event-kit.js"
-      ]
-    },
-    "folders": [
-      {
-        "paths": [
-          "lib",
-          "",
-          "spec"
-        ],
-        "dependencies": {
-          "event-kit": ">= 0.7.2"
-        }
-      }
-    ]
-  }
+  "license": "MIT",
+  "main": "./lib/minimap-split-diff",
+  "name": "minimap-split-diff",
+  "optionalDependencies": {},
+  "readme": "# minimap-split-diff package\n\nA plugin that adds [Split Diff's](https://github.com/mupchrch/split-diff) highlighting to the [Minimap](https://github.com/atom-minimap/minimap) view, making it easier to find differences throughout file versions in Atom.\n\n![Minimap Split Diff plugin in action](https://github.com/mupchrch/minimap-split-diff/raw/master/demo.gif)\n\n### Customization\n\nThe highlighting for this package uses global UI variables defined in your syntax theme. The variables are `@syntax-color-added`, `@syntax-color-removed`, and `@syntax-color-modified`. Make sure your theme defines these, so it is compatible with this package!\n\nTo override these colors in your `styles.less`, write selectors for `.minimap .added`, `.minimap .removed`, and/or `.minimap .selected`. For instance:\n\n```\n.minimap .added {\n  background: blue !important;\n}\n```\n\n### Notes\n\nBoth the Split Diff and Minimap packages must also be installed and enabled in Atom for this package to work.\n",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mupchrch/minimap-split-diff.git"
+  },
+  "version": "0.3.7"
 }

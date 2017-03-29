@@ -1,52 +1,24 @@
 @import "colors";
 
-
-.source.json {
-
-  .constant.language {
-    color: @constant;
-  }
-
-  .meta.structure.dictionary.json {
-
-    .string.quoted.json {
+.syntax--source.syntax--json {
+  .syntax--meta.syntax--structure.syntax--dictionary.syntax--json {
+    & > .syntax--string.syntax--quoted.syntax--json {
+      & > .syntax--punctuation.syntax--string {
+        color: @tag;
+      }
       color: @tag;
     }
+  }
 
-    .meta.structure.dictionary.value.json {
-      // background-color: pink;
-      .string.quoted.json {
-        color: @code-font-color;
-
-        .punctuation.definition.string {
-          color: @code-font-color;
-        }
-      }
-
-      .meta.structure.dictionary.json {
-        // background-color: yellow;
-
-        .string.quoted.json {
-          color: @tag;
-
-          .punctuation.definition.string {
-            color: @tag;
-          }
-        }
-
-        .meta.structure.dictionary.value.json {
-            // background-color: orange;
-
-            .string.quoted.json {
-              color: @code-font-color;
-
-              .punctuation.definition.string {
-                color: @code-font-color;
-              }
-            }
-        }
-      }
+  .syntax--meta.syntax--structure.syntax--dictionary.syntax--json,
+  .syntax--meta.syntax--structure.syntax--array.syntax--json {
+    & > .syntax--value.syntax--json > .syntax--string.syntax--quoted.syntax--json,
+    & > .syntax--value.syntax--json > .syntax--string.syntax--quoted.syntax--json > .syntax--punctuation {
+      color: @code-font-color;
     }
 
+    & > .syntax--constant.syntax--language.syntax--json {
+      color: @constant;
+    }
   }
 }

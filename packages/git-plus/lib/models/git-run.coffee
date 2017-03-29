@@ -5,10 +5,30 @@ git = require '../git'
 notifier = require '../notifier'
 OutputViewManager = require '../output-view-manager'
 
+runCommand = (args, workingDirectory) ->
+  view = OutputViewManager.create()
+  promise = git.cmd(args, cwd: workingDirectory, {color: true})
+  promise
+  .then (data) ->
+    msg = "git #{args.join(' ')} was successful"
+    notifier.addSuccess(msg)
+    if data?.length > 0
+      view.setContent data
+    else
+      view.reset()
+    view.finish()
+  .catch (msg) =>
+    if msg?.length > 0
+      view.setContent msg
+    else
+      view.reset()
+    view.finish()
+  return promise
+
 class InputView extends View
   @content: ->
     @div =>
-      @subview 'commandEditor', new TextEditorView(mini: true, placeHolderText: 'Git command and arguments')
+      @subview 'commandEditor', new TextEditorView(mini: true, placeholderText: 'Git command and arguments')
 
   initialize: (@repo) ->
     @disposables = new CompositeDisposable
@@ -25,27 +45,17 @@ class InputView extends View
     @disposables.add atom.commands.add 'atom-text-editor', 'core:confirm', (e) =>
       @disposables.dispose()
       @panel?.destroy()
-      view = OutputViewManager.new()
       args = @commandEditor.getText().split(' ')
+      # TODO: remove this?
       if args[0] is 1 then args.shift()
-      git.cmd(args, cwd: @repo.getWorkingDirectory())
-      .then (data) =>
-        msg = "git #{args.join(' ')} was successful"
-        notifier.addSuccess(msg)
-        if data?.length > 0
-          view.addLine data
-        else
-          view.reset()
-        view.finish()
-        git.refresh()
+      runCommand args, @repo.getWorkingDirectory()
+      .then =>
         @currentPane.activate()
-      .catch (msg) =>
-        if msg?.length > 0
-          view.addLine msg
-        else
-          view.reset()
-        view.finish()
-        git.refresh()
-        @currentPane.activate()
+        git.refresh @repo
 
-module.exports = (repo) -> new InputView(repo)
+module.exports = (repo, args) ->
+  if args
+    args = args.split(' ')
+    runCommand args, repo.getWorkingDirectory()
+  else
+    new InputView(repo)

@@ -1,3 +1,16 @@
+# v.0.7.0 / 2017-01-11
+
+* [ENHANCEMENT] Remove deprecated Shadow DOM selectors, [#8][] [@Alhadis][]
+
+# v0.6.0 / 2016-10-09
+
+* [FEATURE] Prevent whitespace trimming during save, [#6][] [@FlorianFranzen][]
+* [ENHANCEMENT] Add spec testing suite via Travis, [@miketheman][]
+
+# v0.5.0 / 2016-10-01
+
+* [FEATURE] Highlight "Only in" lines, [@miketheman][]
+
 # v0.4.0 / 2015-11-11
 
 * [FEATURE] Adapt to syntax theme, [#4][] [@hironytic][]
@@ -22,6 +35,11 @@ Initial commit
 [#1]: https://github.com/miketheman/language-diff/issues/1
 [#2]: https://github.com/miketheman/language-diff/issues/2
 [#4]: https://github.com/miketheman/language-diff/issues/4
+[#6]: https://github.com/miketheman/language-diff/issues/6
+[#8]: https://github.com/miketheman/language-diff/issues/8
+[@Alhadis]: https://github.com/Alhadis
+[@FlorianFranzen]: https://github.com/FlorianFranzen
 [@hironytic]: https://github.com/hironytic
 [@mdeaudelin]: https://github.com/mdeaudelin
+[@miketheman]: https://github.com/miketheman
 [@silvenon]: https://github.com/silvenon

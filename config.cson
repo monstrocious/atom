@@ -3,9 +3,10 @@
     disabledPackages: [
       "whitespace"
     ]
+    telemetryConsent: "no"
     themes: [
-      "seti-ui"
-      "seti-syntax"
+      "atom-material-ui"
+      "atom-material-syntax"
     ]
   editor:
     fontSize: 12
@@ -16,12 +17,23 @@
   minimap:
     plugins:
       bookmarks: true
+      bookmarksDecorationsZIndex: 0
       "find-and-replace": true
+      "find-and-replaceDecorationsZIndex": 0
+      "highlight-selected": true
+      "highlight-selectedDecorationsZIndex": 0
       selection: true
+      selectionDecorationsZIndex: 0
       "split-diff": true
+      "split-diffDecorationsZIndex": 0
+  "nord-atom-ui":
+    darkerFormFocusEffect: true
+    tabSizing: false
   "one-light-ui": {}
   "save-session":
     dataSaveFolder: "/Users/Mo/.atom/packages/save-session/projects"
+  "seti-ui":
+    themeColor: "Orange"
   "tree-view": {}
   welcome:
     showOnStartup: false

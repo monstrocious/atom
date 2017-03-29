@@ -1,14 +1,9 @@
-@import "colors.less";
-
-// EDITOR BACKGROUND & FONT COLORS
-.atom-text-editor, :host {
-  background-color: @code-background;
-  color: @code-font-color;
-}
+@import "colors";
 
 // MAIN CODE EDITOR STYLES
-.atom-text-editor, :host {
+.atom-text-editor, atom-text-editor {
 
+  // EDITOR BACKGROUND & FONT COLORS
   background-color: @code-background;
   color: @code-font-color;
 
@@ -86,8 +81,6 @@
 
   // BACKGROUND OF SELECTED TEXT
   .selection .region {
-    // background-color: rgba(230,205,105,0.2);
-    // border: solid 1px rgba(230,205,105,0.5);
     background-color: @selected;
   }
 

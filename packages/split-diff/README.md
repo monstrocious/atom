@@ -1,41 +1,48 @@
 # split-diff package
 
-Diffs text between two split panes. The diff is updated when any changes are made. New panes are created if less than two panes exist upon run of the package.
+Diffs text between two split panes. New panes are created if less than two panes exist upon run of the package.
+
+\*\* **Supports diffing recent git changes!** \*\*
 
 ![Split Diff in action](https://github.com/mupchrch/split-diff/raw/master/demo.gif)
 
 ## Usage
 
-The **Diff Panes** command is unique; it will create panes as necessary. Here are the situations that could arise:
-
-* If there are **no panes** open, then it will create two *empty* panes to paste your diffs into.
-* If there is **one pane** open, then it will diff the pane against a newly created *empty* pane to paste your diff into.
-* If there are **two panes** open, then it will diff the two panes.
-* If there are **more than two panes** open, then it will diff the first two panes it finds.
-
-To stop diffing, simply close one of the panes *or* use the **Disable** command.
-
-*This package will unfold all folded lines in order to properly align the diff.*
-*It will also temporarily turn off soft wrap in the two panes in order to properly align the diff.*
-
 ### Commands
+
+You can call any of these commands from your own custom keybinding, simply override the command in your keymap.cson!
 
 | Command | Effect | Default Keymaps |
 | ------- | ------ | --------------- |
-| `Diff Panes` | Diffs text between two side-by-side panes. Creates panes as needed. | ... |
-| `Move to Next Diff` | Scrolls to the next chunk of the diff and highlights it. | `ctrl-alt-n` |
-| `Move to Previous Diff` | Scrolls to the previous chunk of the diff and highlights it. | `ctrl-alt-p` |
-| `Disable` | Disables the package. Until next time, my friend. | ... |
-| `Toggle Ignore Whitespace` | Toggles the Ignore Whitespace setting. | ... |
+| Toggle `split-diff:toggle` | Toggles a diff of the text between two side-by-side panes. Creates panes as necessary. Displays git changes if there is a repository found. | `ctrl-alt-t` |
+| Enable `split-diff:enable` | Enables a diff of the text between two side-by-side panes. Creates panes as necessary. Displays git changes if there is a repository found. | ... |
+| Disable `split-diff:disable` | Disables a diff. Removes any panes that were created by this package. | ... |
+| Ignore Whitespace `split-diff:ignore-whitespace` | Toggles the Ignore Whitespace setting. | ... |
+| Move to Next Diff `split-diff:next-diff` | Highlights the next difference. Moves the cursor so it can be easily copied. | `ctrl-alt-n` |
+| Move to Previous Diff `split-diff:prev-diff` | Highlights the previous difference. Moves the cursor so it can be easily copied. | `ctrl-alt-p` |
+| Copy to Right `split-diff:copy-to-right` | Copies all differences containing a cursor to the right pane. | `ctrl-alt-.` |
+| Copy to Left `split-diff:copy-to-left` | Copies all differences containing a cursor to the left pane. | `ctrl-alt-,` |
 
 ### Settings
 
-* Ignore Whitespace - Does not diff whitespace when checked.
+* **Show Word Diff** - Diffs the words between each line when this box is checked.
+* **Ignore Whitespace** - Will not diff whitespace when this box is checked.
+* **Mute Notifications** - Mutes all warning notifications when this box is checked.
+* **Sync Scrolling** - Syncs the scrolling of the editors.
+* **Left Editor Color** - Specifies the highlight color for the left editor.
+* **Right Editor Color** - Specifies the highlight color for the right editor.
+
+### Customization
+The highlighting for this package uses global UI variables defined in your syntax theme. The variables are `@syntax-color-added`, `@syntax-color-removed`, `@syntax-color-modified`, and `@syntax-gutter-background-color-selected` (for the blank spacers between lines). Make sure your theme defines these, so it is compatible with this package!
+
+To override these colors in your `styles.less`, write selectors for `.split-diff-added`, `.split-diff-removed`, `.split-diff-selected`, and/or `.split-diff-offset`. For instance:
+
+```
+.split-diff-added {
+  background-color: fade(blue, 40%) !important;
+}
+```
 
 ## Minimap Plugin
 
 Get the [Split Diff minimap plugin](https://atom.io/packages/minimap-split-diff) to make it easier to spot differences!
-
-## Looking for Git Support?
-
-Try the [git-time-machine package](https://atom.io/packages/git-time-machine), which uses Split Diff!

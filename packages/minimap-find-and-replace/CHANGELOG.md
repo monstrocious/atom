@@ -1,3 +1,24 @@
+<a name="v4.5.2"></a>
+# v4.5.2 (2017-03-03)
+
+## :bug: Bug Fixes
+
+- Fix issue with latest fnr version ([185fe01b](https://github.com/atom-minimap/minimap-find-and-replace/commit/185fe01be6b45476e0f27f6892055c50e2372d1e))
+
+<a name="v4.5.1"></a>
+# v4.5.1 (2016-04-11)
+
+## :bug: Bug Fixes
+
+- Fix issue with latest version that removed the find-result class on markers ([346d8b2d](https://github.com/atom-minimap/minimap-find-and-replace/commit/346d8b2d12d553fd1136515127b58e048185442f))
+
+<a name="v4.5.0"></a>
+# v4.5.0 (2016-03-07)
+
+## :sparkles: Features
+
+- Add plugin origin in created decorations ([8b67f86d](https://github.com/atom-minimap/minimap-find-and-replace/commit/8b67f86dee4e27415c6d06b28b0f98acecf40560))
+
 <a name="v4.4.0"></a>
 # v4.4.0 (2015-12-09)
 

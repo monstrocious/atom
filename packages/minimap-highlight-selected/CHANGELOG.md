@@ -1,3 +1,21 @@
+<a name="4.5.0"></a>
+# 4.5.0 (2017-01-12)
+
+## :sparkles: Features
+
+- Add ability for consuming selected words ([7db133ed](https://github.com/atom-minimap/minimap-highlight-selected/commit/7db133ed85c2f2abef844a52ff11007a6ad8819a))
+
+## :bug: Bug Fixes
+
+- Fix method context when used as listeners ([0733c890](https://github.com/atom-minimap/minimap-highlight-selected/commit/0733c8908618f535869bf5b6ef2ed79258784672))
+
+<a name="v4.4.0"></a>
+# v4.4.0 (2016-03-07)
+
+## :sparkles: Features
+
+- Add plugin origin on created decorations ([a9ea1437](https://github.com/atom-minimap/minimap-highlight-selected/commit/a9ea1437c55bb5703f390ca56dbd775bb119202c))
+
 <a name="v4.3.1"></a>
 # v4.3.1 (2015-09-22)
 

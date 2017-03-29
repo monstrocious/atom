@@ -1,8 +1,6 @@
-'use babel'
+'use strict'
 
-import Mixin from 'mixto'
-import {Emitter} from 'atom'
-import Decoration from '../decoration'
+let _, path, Emitter, Decoration
 
 /**
  * The mixin that provides the decorations API to the minimap editor
@@ -11,13 +9,15 @@ import Decoration from '../decoration'
  * This mixin is injected into the `Minimap` prototype, so every methods defined
  * in this file will be available on any `Minimap` instance.
  */
-export default class DecorationManagement extends Mixin {
+module.exports = class DecorationManagement {
 
   /**
    * Initializes the decorations related properties.
    */
   initializeDecorations () {
     if (this.emitter == null) {
+      if (!Emitter) { Emitter = require('atom').Emitter }
+
       /**
        * The minimap emitter, lazily created if not created yet.
        * @type {Emitter}
@@ -282,6 +282,16 @@ export default class DecorationManagement extends Mixin {
    *   highlight is rendered below the line's text.
    * - __highlight-outline__: Renders a colored outline on the minimap. The
    *   highlight box is rendered above the line's text.
+   * - __foreground-custom__: A decoration type for which you have the control
+   *   over the render routine. Note that your routine should implement a render
+   *   on a per-line basis to avoid any side-effect with the offset bitmap cache
+   *   mechanism. These decorations are rendred on the foreground decorations
+   *   layer.
+   * - __background-custom__: A decoration type for which you have the control
+   *   over the render routine. Note that your routine should implement a render
+   *   on a per-line basis to avoid any side-effect with the offset bitmap cache
+   *   mechanism. These decorations are rendred on the background decorations
+   *   layer.
    * @param  {string} [decorationParams.class] the CSS class to use to retrieve
    *                                        the background color of the
    *                                        decoration by building a scop
@@ -291,9 +301,22 @@ export default class DecorationManagement extends Mixin {
    *                                        decoration background. Note that if
    *                                        the `scope` property is set, the
    *                                        `class` won't be used.
-   * @param  {string} [decorationParams.color] the CSS color to use to render the
-   *                                        decoration. When set, neither
-   *                                        `scope` nor `class` are used.
+   * @param  {string} [decorationParams.color] the CSS color to use to render
+   *                                           the decoration. When set, neither
+   *                                           `scope` nor `class` are used.
+   * @param  {string} [decorationParams.plugin] the name of the plugin that
+   *                                            created this decoration. It'll
+   *                                            be used to order the decorations
+   *                                            on the same layer and that are
+   *                                            overlapping. If the parameter is
+   *                                            omitted the Minimap will attempt
+   *                                            to infer the plugin origin from
+   *                                            the path of the caller function.
+   * @param  {function} [decorationParams.render] the render routine for custom
+   *                                              decorations. The function
+   *                                              receives the decoration and
+   *                                              the render data for the
+   *                                              current render pass.
    * @return {Decoration} the created decoration
    * @emits  {did-add-decoration} when the decoration is created successfully
    * @emits  {did-change} when the decoration is created successfully
@@ -301,13 +324,19 @@ export default class DecorationManagement extends Mixin {
   decorateMarker (marker, decorationParams) {
     if (this.destroyed || marker == null) { return }
 
+    if (!Decoration) { Decoration = require('../decoration') }
+
     let {id} = marker
 
     if (decorationParams.type === 'highlight') {
       decorationParams.type = 'highlight-over'
     }
 
-    const {type} = decorationParams
+    const {type, plugin} = decorationParams
+
+    if (plugin == null) {
+      decorationParams.plugin = this.getOriginatorPackageName()
+    }
 
     if (decorationParams.scope == null && decorationParams['class'] != null) {
       let cls = decorationParams['class'].split(' ').join('.')
@@ -395,6 +424,19 @@ export default class DecorationManagement extends Mixin {
     return decoration
   }
 
+  getOriginatorPackageName () {
+    if (!_) { _ = require('underscore-plus') }
+    if (!path) { path = require('path') }
+
+    const line = new Error().stack.split('\n')[3]
+    const filePath = line.split('(')[1].replace(')', '')
+    const re = new RegExp(
+      atom.packages.getPackageDirPaths().join('|') + _.escapeRegExp(path.sep)
+    )
+    const plugin = filePath.replace(re, '').split(path.sep)[0].replace(/minimap-|-minimap/, '')
+    return plugin.indexOf(path.sep) < 0 ? plugin : undefined
+  }
+
   /**
    * Given two ranges, it returns an array of ranges representing the
    * differences between them.
@@ -433,12 +475,15 @@ export default class DecorationManagement extends Mixin {
    * @access private
    */
   emitDecorationChanges (type, decoration) {
-    if (decoration.marker.displayBuffer.isDestroyed()) { return }
+    if (this.editorDestroyed()) { return }
 
     this.invalidateDecorationForScreenRowsCache()
 
-    let range = decoration.marker.getScreenRange()
-    if (range == null) { return }
+    const range = {
+      start: decoration.marker.oldTailScreenPosition,
+      end: decoration.marker.oldHeadScreenPosition
+    }
+    if (!range.start || !range.end) { return }
 
     this.emitRangeChanges(type, range, 0)
   }
@@ -533,7 +578,9 @@ export default class DecorationManagement extends Mixin {
     for (let i = 0, len = decorations.length; i < len; i++) {
       let decoration = decorations[i]
 
-      this.emitDecorationChanges(decoration.getProperties().type, decoration)
+      if (!this.adapter.editorDestroyed()) {
+        this.emitDecorationChanges(decoration.getProperties().type, decoration)
+      }
       this.emitter.emit('did-remove-decoration', {
         marker: marker,
         decoration: decoration

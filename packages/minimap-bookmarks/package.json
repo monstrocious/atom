@@ -1,15 +1,43 @@
 {
-  "name": "minimap-bookmarks",
-  "main": "./lib/minimap-bookmarks",
-  "version": "0.2.0",
-  "description": "Displays Atom bookmarks in the minimap",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/atom-minimap/minimap-bookmarks.git"
+  "_args": [
+    [
+      {
+        "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73014-4izx9h/package.tgz",
+        "scope": null,
+        "escapedName": null,
+        "name": null,
+        "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73014-4izx9h/package.tgz",
+        "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73014-4izx9h/package.tgz",
+        "type": "local"
+      },
+      "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-117229-73014-qvvdki"
+    ]
+  ],
+  "_from": "../d-117229-73014-4izx9h/package.tgz",
+  "_id": "minimap-bookmarks@0.4.2",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/minimap-bookmarks",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73014-4izx9h/package.tgz",
+    "scope": null,
+    "escapedName": null,
+    "name": null,
+    "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73014-4izx9h/package.tgz",
+    "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73014-4izx9h/package.tgz",
+    "type": "local"
   },
-  "license": "MIT",
-  "engines": {
-    "atom": ">=0.184.0"
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "file:../d-117229-73014-4izx9h/package.tgz",
+  "_shasum": "0fcdeebf04d07dccbc995b09501160e88c6566e2",
+  "_shrinkwrap": null,
+  "_spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73014-4izx9h/package.tgz",
+  "_where": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-117229-73014-qvvdki",
+  "bugs": {
+    "url": "https://github.com/atom-minimap/minimap-bookmarks/issues"
   },
   "consumedServices": {
     "minimap": {
@@ -18,28 +46,29 @@
       }
     }
   },
-  "readme": "# minimap-bookmarks package [![Build Status](https://travis-ci.org/atom-minimap/minimap-bookmarks.svg?branch=master)](https://travis-ci.org/atom-minimap/minimap-bookmarks)\n\nDisplays Atom bookmarks in the minimap.\n\n![Minimap Bookmarks Screenshot](https://github.com/atom-minimap/minimap-bookmarks/blob/master/screenshot.gif?raw=true)\n",
-  "readmeFilename": "README.md",
-  "bugs": {
-    "url": "https://github.com/atom-minimap/minimap-bookmarks/issues"
+  "dependencies": {
+    "atom-utils": "*"
+  },
+  "description": "Displays Atom bookmarks in the minimap",
+  "devDependencies": {},
+  "engines": {
+    "atom": ">=0.184.0"
   },
   "homepage": "https://github.com/atom-minimap/minimap-bookmarks#readme",
-  "_id": "minimap-bookmarks@0.2.0",
-  "_shasum": "2294c55ff75688b6faf5b510a3da7efb77789078",
-  "_resolved": "file:../d-116014-36245-1vh8j5n/package.tgz",
-  "_from": "../d-116014-36245-1vh8j5n/package.tgz",
-  "_atomModuleCache": {
-    "version": 1,
-    "dependencies": [],
-    "extensions": {
-      ".coffee": [
-        "lib/minimap-bookmarks-binding.coffee",
-        "lib/minimap-bookmarks.coffee"
-      ],
-      ".json": [
-        "package.json"
-      ]
-    },
-    "folders": []
-  }
+  "keywords": [
+    "minimap",
+    "bookmarks",
+    "bookmark"
+  ],
+  "license": "MIT",
+  "main": "./lib/minimap-bookmarks",
+  "name": "minimap-bookmarks",
+  "optionalDependencies": {},
+  "readme": "# minimap-bookmarks package [![Build Status](https://travis-ci.org/atom-minimap/minimap-bookmarks.svg?branch=master)](https://travis-ci.org/atom-minimap/minimap-bookmarks)\n\nDisplays Atom bookmarks in the minimap.\n\n![Minimap Bookmarks Screenshot](https://github.com/atom-minimap/minimap-bookmarks/blob/master/screenshot.gif?raw=true)\n\nCustomization\n\nIf you want to change the color of the minimap bookmarks use the following CSS rules in your user stylesheet:\n\n```css\n.minimap .bookmark {\n  background: #09C;\n}\n```\n",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atom-minimap/minimap-bookmarks.git"
+  },
+  "version": "0.4.2"
 }

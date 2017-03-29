@@ -1,66 +1,31 @@
-@import "colors";
-
-
-.jade {
+.syntax--jade, .syntax--pug {
 
   color: @code-font-color;
 
-  .comment.jade {
+  .syntax--comment {
     color: @comment;
   }
 
-  .storage.type.function.jade {
-    color: @keyword;
-  }
-
-  .meta.control.flow.jade {
-    color: @red;
-  }
-
-  .source.script {
-    .meta.brace.round.js, .meta.brace.curly.js {
-      color: @brackets;
-    }
-  }
-
-  .entity {
-
-    &.name.tag.jade {
-      color: @tag;
-    }
-
-  }
-
-  .storage.type.import.include.jade {
-    color: lighten(@green, 20%);
-  }
-
-  .variable.control.import.include.jade {
-    color: @green;
-  }
-
-  .constant {
-
-    &.id {
-      color: @yellow;
-    }
-
-    &.language.js {
-      color: @purple;
-    }
-
-  }
-
-  .text.jade {
-    color: @code-font-color;
-  }
-
-  .punctuation.separator.key-value.jade {
+  .syntax--name {
     color: @tag;
   }
 
-  .string.quoted.jade {
-    color: @code-font-color;
+  .syntax--entity {
+    color: @tag-entity;
   }
 
+  .syntax--string {
+    color: @string;
+  }
+
+  .syntax--quoted {
+    color: @quotes;
+  }
+
+  .syntax--attribute-name, .syntax--id {
+    color: @red !important;
+  }
+  .syntax--class {
+    color: @class;
+  }
 }

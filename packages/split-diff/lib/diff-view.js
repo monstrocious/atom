@@ -22,13 +22,24 @@ module.exports = class DiffView {
    * Adds highlighting to the editors to show the diff.
    *
    * @param diff The diff to highlight.
-   * @param leftHighlightType The type of highlight (ex: 'added').
-   * @param rightHighlightType The type of highlight (ex: 'removed').
+   * @param addedColorSide The side that the added highlights should be applied to. Either 'left' or 'right'.
    * @param isWordDiffEnabled Whether differences between words per line should be highlighted.
    * @param isWhitespaceIgnored Whether whitespace should be ignored.
+   * @param useCustomStyle Whether to use the user's customized highlight colors.
    */
-  displayDiff(diff, leftHighlightType, rightHighlightType, isWordDiffEnabled, isWhitespaceIgnored) {
+  displayDiff(diff, addedColorSide, isWordDiffEnabled, isWhitespaceIgnored, useCustomStyle) {
     this._chunks = diff.chunks || [];
+
+    var leftHighlightType = 'added';
+    var rightHighlightType = 'removed';
+    if(addedColorSide == 'right') {
+      leftHighlightType = 'removed';
+      rightHighlightType = 'added';
+    }
+    if(useCustomStyle) {
+      leftHighlightType += '-custom';
+      rightHighlightType += '-custom';
+    }
 
     // make the last chunk equal size on both screens so the editors retain sync scroll #58
     if(this.getNumDifferences() > 0) {
@@ -82,8 +93,9 @@ module.exports = class DiffView {
 
   /**
    * Called to move the current selection highlight to the next diff chunk.
+   * @param isSyncScrollEnabled Only autoscroll one editor if sync scroll is enabled or we will get in an infinite loop
    */
-  nextDiff() {
+  nextDiff(isSyncScrollEnabled) {
     if(this._isSelectionActive) {
       this._selectedChunkIndex++;
       if(this._selectedChunkIndex >= this.getNumDifferences()) {
@@ -93,14 +105,19 @@ module.exports = class DiffView {
       this._isSelectionActive = true;
     }
 
-    this._selectChunk(this._selectedChunkIndex, true);
+    var success = this._selectChunk(this._selectedChunkIndex, true, isSyncScrollEnabled);
+    if(!success) {
+        return -1;
+    }
+
     return this._selectedChunkIndex;
   }
 
   /**
    * Called to move the current selection highlight to the previous diff chunk.
+   * @param isSyncScrollEnabled Only autoscroll one editor if sync scroll is enabled or we will get in an infinite loop
    */
-  prevDiff() {
+  prevDiff(isSyncScrollEnabled) {
     if(this._isSelectionActive) {
       this._selectedChunkIndex--;
       if(this._selectedChunkIndex < 0) {
@@ -110,7 +127,11 @@ module.exports = class DiffView {
       this._isSelectionActive = true;
     }
 
-    this._selectChunk(this._selectedChunkIndex, true);
+    var success = this._selectChunk(this._selectedChunkIndex, true, isSyncScrollEnabled);
+    if(!success) {
+        return -1;
+    }
+
     return this._selectedChunkIndex;
   }
 
@@ -200,6 +221,18 @@ module.exports = class DiffView {
   }
 
   /**
+   * Restores soft wrap to the appropriate editor.
+   * @param editorIndex The index of the editor to restore soft wrap to.
+   */
+  restoreEditorSoftWrap(editorIndex) {
+    if(editorIndex === 1) {
+      this._editorDiffExtender1.getEditor().setSoftWrapped(true);
+    } else if(editorIndex === 2) {
+      this._editorDiffExtender2.getEditor().setSoftWrapped(true);
+    }
+  }
+
+  /**
    * Destroys the editor diff extenders.
    */
   destroy() {
@@ -216,10 +249,20 @@ module.exports = class DiffView {
     return Array.isArray(this._chunks) ? this._chunks.length : 0;
   }
 
+  /**
+   * Gets the marker layers in use by the editors.
+   * @return An object containing the marker layers and approriate information.
+   */
   getMarkerLayers() {
     return this._markerLayers;
   }
 
+  /**
+   * Handles when the cursor moves in the editor. Will highlight chunks that have a cursor in them.
+   * @param cursor The cursor object from the event.
+   * @param oldBufferPosition The old position of the cursor in the buffer.
+   * @param newBufferPosition The new position of the cursor in the buffer.
+   */
   handleCursorChange(cursor, oldBufferPosition, newBufferPosition) {
     var editorIndex = (cursor.editor === this._editorDiffExtender1.getEditor()) ? 1 : 2;
     var oldPositionChunkIndex = this._getChunkIndexByLineNumber(editorIndex, oldBufferPosition.row);
@@ -245,8 +288,10 @@ module.exports = class DiffView {
    * given index.
    *
    * @param index The index of the diff chunk to highlight in both editors.
+   * @param isNextOrPrev Whether we are moving to a direct sibling (if not, this is a click)
+   * @param isSyncScrollEnabled Only autoscroll one editor if sync scroll is enabled or we will get in an infinite loop
    */
-  _selectChunk(index, isNextOrPrev) {
+  _selectChunk(index, isNextOrPrev, isSyncScrollEnabled) {
     var diffChunk = this._chunks[index];
     if(diffChunk != null) {
       diffChunk.isSelected = true;
@@ -257,15 +302,25 @@ module.exports = class DiffView {
         this._editorDiffExtender2.deselectAllLines();
         // scroll the editors
         this._editorDiffExtender1.getEditor().setCursorBufferPosition([diffChunk.oldLineStart, 0], {autoscroll: true});
-        this._editorDiffExtender2.getEditor().setCursorBufferPosition([diffChunk.newLineStart, 0], {autoscroll: true});
+        this._editorDiffExtender2.getEditor().setCursorBufferPosition([diffChunk.newLineStart, 0], {autoscroll: !isSyncScrollEnabled});
       }
 
       // highlight selection in both editors
       this._editorDiffExtender1.selectLines(diffChunk.oldLineStart, diffChunk.oldLineEnd);
       this._editorDiffExtender2.selectLines(diffChunk.newLineStart, diffChunk.newLineEnd);
+
+      return true;
     }
+
+    return false;
   }
 
+  /**
+   * Gets the index of a chunk by the line number.
+   * @param editorIndex The index of the editor to check.
+   * @param lineNumber  The line number to use to check if it is in a chunk.
+   * @return The index of the chunk.
+   */
   _getChunkIndexByLineNumber(editorIndex, lineNumber) {
     for(var i=0; i<this._chunks.length; i++) {
       var diffChunk = this._chunks[i];

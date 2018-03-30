@@ -1,13 +1,40 @@
 {
-  "name": "open-on-bitbucket",
-  "version": "0.4.0",
-  "main": "./lib/main",
-  "description": "View the active file on Bitbucket Cloud or Server (formerly Stash)",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mark-adams/open-on-bitbucket.git"
+  "_args": [
+    [
+      {
+        "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83376-1a346on.4kzt6e0zfr/package.tgz",
+        "scope": null,
+        "escapedName": null,
+        "name": null,
+        "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83376-1a346on.4kzt6e0zfr/package.tgz",
+        "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83376-1a346on.4kzt6e0zfr/package.tgz",
+        "type": "local"
+      },
+      "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-118011-83376-et060d.5rqfnfusor"
+    ]
+  ],
+  "_from": "../d-118011-83376-1a346on.4kzt6e0zfr/package.tgz",
+  "_id": "open-on-bitbucket@0.5.0",
+  "_inCache": true,
+  "_location": "/open-on-bitbucket",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83376-1a346on.4kzt6e0zfr/package.tgz",
+    "scope": null,
+    "escapedName": null,
+    "name": null,
+    "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83376-1a346on.4kzt6e0zfr/package.tgz",
+    "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83376-1a346on.4kzt6e0zfr/package.tgz",
+    "type": "local"
   },
-  "license": "MIT",
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "file:../d-118011-83376-1a346on.4kzt6e0zfr/package.tgz",
+  "_shasum": "5db292e64166c1f1dce92f2244ac587d984c771c",
+  "_shrinkwrap": null,
+  "_spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83376-1a346on.4kzt6e0zfr/package.tgz",
+  "_where": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-118011-83376-et060d.5rqfnfusor",
   "activationCommands": {
     "atom-pane": [
       "open-on-bitbucket:blame",
@@ -19,36 +46,28 @@
       "open-on-bitbucket:repository"
     ]
   },
-  "engines": {
-    "atom": "*"
-  },
-  "devDependencies": {
-    "fs-plus": "2.x",
-    "coffeelint": "^1.9.7"
-  },
-  "readme": "# Open on Bitbucket [![Build Status](https://travis-ci.org/mark-adams/open-on-bitbucket.svg?branch=master)](https://travis-ci.org/mark-adams/open-on-bitbucket)\n\nProvides commands to quickly view the current file on [Bitbucket](https://bitbucket.org) or [Bitbucket Server](https://www.atlassian.com/software/bitbucket/server) (formerly Stash).\n\n## Usage\n\nWhen editing a file in Atom, use the command palette or keyboard shortcuts to:\n\n- Open the file on bitbucket.org `alt-b, o`\n- Open the blame view for the file on bitbucket.org `alt-b, b`\n- Open the history view for the file on bitbucket.org `alt-b, h`\n- Open the issues view for the repository the file belongs to on github.com `alt-g, i`\n- Open the compare page for the current branch on bitbucket.org `alt-b, r`\n- Copy the bitbucket.org URL for the currently selected lines `alt-b, c`\n\n![Command Palette](https://cloud.githubusercontent.com/assets/472350/7668596/86267acc-fc06-11e4-92e4-8737a632a021.png)\n\n\n---\n\nInspired by the [Open on Github package][open-on-github] for Atom.\n\n[open-on-github]: https://github.com/atom/open-on-github\n",
-  "readmeFilename": "README.md",
   "bugs": {
     "url": "https://github.com/mark-adams/open-on-bitbucket/issues"
   },
+  "dependencies": {},
+  "description": "View the active file on Bitbucket Cloud or Server (formerly Stash)",
+  "devDependencies": {
+    "coffeelint": "^1.9.7",
+    "fs-plus": "2.x"
+  },
+  "engines": {
+    "atom": "*"
+  },
   "homepage": "https://github.com/mark-adams/open-on-bitbucket#readme",
-  "_id": "open-on-bitbucket@0.4.0",
-  "_shasum": "f7e257b71fa0a3ec8f9e638497a56222915bba5f",
-  "_resolved": "file:../d-116527-16257-1uqx45g/package.tgz",
-  "_from": "../d-116527-16257-1uqx45g/package.tgz",
-  "_atomModuleCache": {
-    "version": 1,
-    "dependencies": [],
-    "extensions": {
-      ".json": [
-        "coffeelint.json",
-        "package.json"
-      ],
-      ".coffee": [
-        "lib/bitbucket-file.coffee",
-        "lib/main.coffee"
-      ]
-    },
-    "folders": []
-  }
+  "license": "MIT",
+  "main": "./lib/main",
+  "name": "open-on-bitbucket",
+  "optionalDependencies": {},
+  "readme": "# Open on Bitbucket [![Build Status](https://travis-ci.org/mark-adams/open-on-bitbucket.svg?branch=master)](https://travis-ci.org/mark-adams/open-on-bitbucket)\n\nProvides commands to quickly view the current file on [Bitbucket](https://bitbucket.org) or [Bitbucket Server](https://www.atlassian.com/software/bitbucket/server) (formerly Stash).\n\n## Usage\n\nWhen editing a file in Atom, use the command palette or keyboard shortcuts to:\n\n- Open the file on bitbucket.org `alt-b, o`\n- Open the blame view for the file on bitbucket.org `alt-b, b`\n- Open the history view for the file on bitbucket.org `alt-b, h`\n- Open the issues view for the repository the file belongs to on github.com `alt-g, i`\n- Open the compare page for the current branch on bitbucket.org `alt-b, r`\n- Copy the bitbucket.org URL for the currently selected lines `alt-b, c`\n\n![Command Palette](https://cloud.githubusercontent.com/assets/472350/7668596/86267acc-fc06-11e4-92e4-8737a632a021.png)\n\n\n---\n\nInspired by the [Open on Github package][open-on-github] for Atom.\n\n[open-on-github]: https://github.com/atom/open-on-github\n",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mark-adams/open-on-bitbucket.git"
+  },
+  "version": "0.5.0"
 }

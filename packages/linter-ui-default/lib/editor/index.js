@@ -2,8 +2,7 @@
 
 import debounce from 'sb-debounce'
 import disposableEvent from 'disposable-event'
-import { Range } from 'atom'
-import { CompositeDisposable, Emitter, Disposable } from 'sb-event-kit'
+import { CompositeDisposable, Disposable, Emitter, Range } from 'atom'
 import type { TextEditor, BufferMarker, TextEditorGutter, Point } from 'atom'
 
 import Tooltip from '../tooltip'
@@ -11,7 +10,7 @@ import { $range, filterMessagesByRangeOrPoint } from '../helpers'
 import { hasParent, mouseEventNearPosition, getBufferPositionFromMouseEvent } from './helpers'
 import type { LinterMessage } from '../types'
 
-export default class Editor {
+class Editor {
   gutter: ?TextEditorGutter;
   tooltip: ?Tooltip;
   emitter: Emitter;
@@ -22,8 +21,10 @@ export default class Editor {
   subscriptions: CompositeDisposable;
   cursorPosition: ?Point;
   gutterPosition: boolean;
+  tooltipFollows: string;
   showDecorations: boolean;
   showProviderName: boolean;
+  ignoreTooltipInvocation: boolean;
 
   constructor(textEditor: TextEditor) {
     this.tooltip = null
@@ -32,10 +33,14 @@ export default class Editor {
     this.messages = new Set()
     this.textEditor = textEditor
     this.subscriptions = new CompositeDisposable()
+    this.ignoreTooltipInvocation = false
 
     this.subscriptions.add(this.emitter)
     this.subscriptions.add(atom.config.observe('linter-ui-default.showTooltip', (showTooltip) => {
       this.showTooltip = showTooltip
+      if (!this.showTooltip && this.tooltip) {
+        this.removeTooltip()
+      }
     }))
     this.subscriptions.add(atom.config.observe('linter-ui-default.showProviderName', (showProviderName) => {
       this.showProviderName = showProviderName
@@ -60,15 +65,44 @@ export default class Editor {
 
     let tooltipSubscription
     this.subscriptions.add(atom.config.observe('linter-ui-default.tooltipFollows', (tooltipFollows) => {
+      this.tooltipFollows = tooltipFollows
       if (tooltipSubscription) {
         tooltipSubscription.dispose()
       }
-      tooltipSubscription = tooltipFollows === 'Mouse' ? this.listenForMouseMovement() : this.listenForKeyboardMovement()
+      tooltipSubscription = new CompositeDisposable()
+      if (tooltipFollows === 'Mouse' || tooltipFollows === 'Both') {
+        tooltipSubscription.add(this.listenForMouseMovement())
+      }
+      if (tooltipFollows === 'Keyboard' || tooltipFollows === 'Both') {
+        tooltipSubscription.add(this.listenForKeyboardMovement())
+      }
       this.removeTooltip()
     }))
-    this.subscriptions.add(function() {
+    this.subscriptions.add(new Disposable(function() {
       tooltipSubscription.dispose()
-    })
+    }))
+
+    const lastCursorPositions = new WeakMap()
+    this.subscriptions.add(textEditor.onDidChangeCursorPosition(({ cursor, newBufferPosition }) => {
+      const lastBufferPosition = lastCursorPositions.get(cursor)
+      if (!lastBufferPosition || !lastBufferPosition.isEqual(newBufferPosition)) {
+        lastCursorPositions.set(cursor, newBufferPosition)
+        this.ignoreTooltipInvocation = false
+      }
+      if (this.tooltipFollows === 'Mouse') {
+        this.removeTooltip()
+      }
+    }))
+    this.subscriptions.add(textEditor.getBuffer().onDidChangeText(() => {
+      const cursors = textEditor.getCursors()
+      cursors.forEach((cursor) => {
+        lastCursorPositions.set(cursor, cursor.getBufferPosition())
+      })
+      if (this.tooltipFollows !== 'Mouse') {
+        this.ignoreTooltipInvocation = true
+        this.removeTooltip()
+      }
+    }))
     this.updateGutter()
     this.listenForCurrentLine()
   }
@@ -79,7 +113,7 @@ export default class Editor {
       let lastEmpty
       const handlePositionChange = ({ start, end }) => {
         const gutter = this.gutter
-        if (!gutter) return
+        if (!gutter || this.subscriptions.disposed) return
         // We need that Range.fromObject hack below because when we focus index 0 on multi-line selection
         // end.column is the column of the last line but making a range out of two and then accesing
         // the end seems to fix it (black magic?)
@@ -96,7 +130,7 @@ export default class Editor {
         lastRange = linesRange
         lastEmpty = currentEmpty
 
-        marker = this.textEditor.markBufferRange(linesRange, {
+        marker = this.textEditor.markScreenRange(linesRange, {
           invalidate: 'never',
         })
         const item = document.createElement('span')
@@ -109,49 +143,56 @@ export default class Editor {
 
       const cursorMarker = cursor.getMarker()
       const subscriptions = new CompositeDisposable()
-      subscriptions.add(cursorMarker.onDidChange(({ newHeadBufferPosition, newTailBufferPosition }) => {
-        handlePositionChange({ start: newHeadBufferPosition, end: newTailBufferPosition })
+      subscriptions.add(cursorMarker.onDidChange(({ newHeadScreenPosition, newTailScreenPosition }) => {
+        handlePositionChange({ start: newHeadScreenPosition, end: newTailScreenPosition })
       }))
       subscriptions.add(cursor.onDidDestroy(() => {
-        this.subscriptions.delete(subscriptions)
+        this.subscriptions.remove(subscriptions)
         subscriptions.dispose()
       }))
-      subscriptions.add(function() {
+      subscriptions.add(new Disposable(function() {
         if (marker) marker.destroy()
-      })
+      }))
       this.subscriptions.add(subscriptions)
-      handlePositionChange(cursorMarker.getBufferRange())
+      handlePositionChange(cursorMarker.getScreenRange())
     }))
   }
   listenForMouseMovement() {
     const editorElement = atom.views.getView(this.textEditor)
-    return disposableEvent(editorElement, 'mousemove', debounce((e) => {
-      if (!editorElement.component || !hasParent(e.target, 'div.scroll-view')) {
+
+    return disposableEvent(editorElement, 'mousemove', debounce((event) => {
+      if (!editorElement.component || this.subscriptions.disposed || !hasParent(event.target, 'div.scroll-view')) {
         return
       }
       const tooltip = this.tooltip
-      if (tooltip && mouseEventNearPosition(e, editorElement, tooltip.marker.getStartScreenPosition(), tooltip.element.offsetWidth, tooltip.element.offsetHeight)) {
+      if (tooltip && mouseEventNearPosition({
+        event,
+        editor: this.textEditor,
+        editorElement,
+        tooltipElement: tooltip.element,
+        screenPosition: tooltip.marker.getStartScreenPosition(),
+      })) {
         return
       }
-      // NOTE: Ignore if file is too big
+
+      this.cursorPosition = getBufferPositionFromMouseEvent(event, this.textEditor, editorElement)
+      this.ignoreTooltipInvocation = false
       if (this.textEditor.largeFileMode) {
-        this.removeTooltip()
-        return
+        // NOTE: Ignore if file is too large
+        this.cursorPosition = null
       }
-      const cursorPosition = getBufferPositionFromMouseEvent(e, this.textEditor, editorElement)
-      this.cursorPosition = cursorPosition
-      if (cursorPosition) {
+      if (this.cursorPosition) {
         this.updateTooltip(this.cursorPosition)
       } else {
         this.removeTooltip()
       }
-    }, 200, true))
+    }, 300, true))
   }
   listenForKeyboardMovement() {
     return this.textEditor.onDidChangeCursorPosition(debounce(({ newBufferPosition }) => {
       this.cursorPosition = newBufferPosition
       this.updateTooltip(newBufferPosition)
-    }, 60))
+    }, 16))
   }
   updateGutter() {
     this.removeGutter()
@@ -183,6 +224,9 @@ export default class Editor {
     }
     this.removeTooltip()
     if (!this.showTooltip) {
+      return
+    }
+    if (this.ignoreTooltipInvocation) {
       return
     }
 
@@ -244,7 +288,7 @@ export default class Editor {
   decorateMarker(message: LinterMessage, marker: Object, paint: 'gutter' | 'editor' | 'both' = 'both') {
     if (paint === 'both' || paint === 'editor') {
       this.textEditor.decorateMarker(marker, {
-        type: 'highlight',
+        type: 'text',
         class: `linter-highlight linter-${message.severity}`,
       })
     }
@@ -252,7 +296,7 @@ export default class Editor {
     const gutter = this.gutter
     if (gutter && (paint === 'both' || paint === 'gutter')) {
       const element = document.createElement('span')
-      element.className = `linter-gutter linter-highlight linter-${message.severity} icon icon-${message.icon || 'primitive-dot'}`
+      element.className = `linter-gutter linter-gutter-${message.severity} icon icon-${message.icon || 'primitive-dot'}`
       gutter.decorateMarker(marker, {
         class: 'linter-row',
         item: element,
@@ -269,3 +313,5 @@ export default class Editor {
     this.removeTooltip()
   }
 }
+
+module.exports = Editor

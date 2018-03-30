@@ -3,6 +3,7 @@ DiffView = require './diff-view'
 LoadingView = require './ui/loading-view'
 FooterView = require './ui/footer-view'
 SyncScroll = require './sync-scroll'
+StyleCalculator = require './style-calculator'
 configSchema = require './config-schema'
 path = require 'path'
 
@@ -14,11 +15,44 @@ module.exports = SplitDiff =
   isEnabled: false
   wasEditor1Created: false
   wasEditor2Created: false
+  wasEditor1SoftWrapped: false
+  wasEditor2SoftWrapped: false
   hasGitRepo: false
+  docksToReopen: {left: false, right: false, bottom: false}
   process: null
+  splitDiffResolves: []
+  options: {}
 
   activate: (state) ->
-    window.splitDiffResolves = []
+    @contextForService = this
+
+    styleCalculator = new StyleCalculator(atom.styles, atom.config)
+    styleCalculator.startWatching(
+        'split-diff-custom-styles',
+        ['split-diff.colors.addedColor', 'split-diff.colors.removedColor'],
+        (config) ->
+          addedColor = config.get('split-diff.colors.addedColor')
+          addedColor.alpha = 0.4
+          addedWordColor = addedColor
+          addedWordColor.alpha = 0.5
+          removedColor = config.get('split-diff.colors.removedColor')
+          removedColor.alpha = 0.4
+          removedWordColor = removedColor
+          removedWordColor.alpha = 0.5
+          "\n
+          .split-diff-added-custom {\n
+            \tbackground-color: #{addedColor.toRGBAString()};\n
+          }\n
+          .split-diff-removed-custom {\n
+            \tbackground-color: #{removedColor.toRGBAString()};\n
+          }\n
+          .split-diff-word-added-custom .region {\n
+            \tbackground-color: #{addedWordColor.toRGBAString()};\n
+          }\n
+          .split-diff-word-removed-custom .region {\n
+            \tbackground-color: #{removedWordColor.toRGBAString()};\n
+          }\n"
+    )
 
     @subscriptions = new CompositeDisposable()
     @subscriptions.add atom.commands.add 'atom-workspace, .tree-view .selected, .tab.texteditor',
@@ -70,8 +104,12 @@ module.exports = SplitDiff =
     if @diffView?
       if @wasEditor1Created
         @diffView.cleanUpEditor(1)
+      else if @wasEditor1SoftWrapped
+        @diffView.restoreEditorSoftWrap(1)
       if @wasEditor2Created
         @diffView.cleanUpEditor(2)
+      else if @wasEditor2SoftWrapped
+        @diffView.restoreEditorSoftWrap(2)
       @diffView.destroy()
       @diffView = null
 
@@ -87,32 +125,50 @@ module.exports = SplitDiff =
       @syncScroll.dispose()
       @syncScroll = null
 
+    # auto hide tree view while diffing #82
+    hideDocks = @options.hideDocks ? @_getConfig('hideDocks')
+    if hideDocks
+      if @docksToReopen.left
+        atom.workspace.getLeftDock().show()
+      if @docksToReopen.right
+        atom.workspace.getRightDock().show()
+      if @docksToReopen.bottom
+        atom.workspace.getBottomDock().show()
+
     # reset all variables
+    @docksToReopen = {left: false, right: false, bottom: false}
     @wasEditor1Created = false
     @wasEditor2Created = false
+    @wasEditor1SoftWrapped = false
+    @wasEditor2SoftWrapped = false
     @hasGitRepo = false
 
-    # auto hide tree view while diffing #82
-    if @_getConfig('hideTreeView')
-      atom.commands.dispatch(atom.views.getView(atom.workspace), 'tree-view:show')
-
   # called by "toggle ignore whitespace" command
-  # toggles ignoring whitespace and refreshes the diff
   toggleIgnoreWhitespace: ->
-    isWhitespaceIgnored = @_getConfig('ignoreWhitespace')
-    @_setConfig('ignoreWhitespace', !isWhitespaceIgnored)
-    @footerView?.setIgnoreWhitespace(!isWhitespaceIgnored)
+    # if ignoreWhitespace is not being overridden
+    if !(@options.ignoreWhitespace?)
+      ignoreWhitespace = @_getConfig('ignoreWhitespace')
+      @_setConfig('ignoreWhitespace', !ignoreWhitespace)
+      @footerView?.setIgnoreWhitespace(!ignoreWhitespace)
 
   # called by "Move to next diff" command
   nextDiff: ->
     if @diffView?
-      selectedIndex = @diffView.nextDiff()
+      isSyncScrollEnabled = false
+      scrollSyncType = @options.scrollSyncType ? @_getConfig('scrollSyncType')
+      if scrollSyncType == 'Vertical + Horizontal' || scrollSyncType == 'Vertical'
+        isSyncScrollEnabled = true
+      selectedIndex = @diffView.nextDiff(isSyncScrollEnabled)
       @footerView?.showSelectionCount( selectedIndex + 1 )
 
   # called by "Move to previous diff" command
   prevDiff: ->
     if @diffView?
-      selectedIndex = @diffView.prevDiff()
+      isSyncScrollEnabled = false
+      scrollSyncType = @options.scrollSyncType ? @_getConfig('scrollSyncType')
+      if scrollSyncType == 'Vertical + Horizontal' || scrollSyncType == 'Vertical'
+        isSyncScrollEnabled = true
+      selectedIndex = @diffView.prevDiff(isSyncScrollEnabled)
       @footerView?.showSelectionCount( selectedIndex + 1 )
 
   # called by "Copy to right" command
@@ -130,24 +186,33 @@ module.exports = SplitDiff =
   # called by the commands enable/toggle to do initial diff
   # sets up subscriptions for auto diff and disabling when a pane is destroyed
   # event is an optional argument of a file path to diff with current
-  diffPanes: (event) ->
-    # in case enable was called again
-    @disable()
+  # editorsPromise is an optional argument of a promise that returns with 2 editors
+  # options is an optional argument with optional properties that are used to override user's settings
+  diffPanes: (event, editorsPromise, options = {}) ->
+    @options = options
 
-    @editorSubscriptions = new CompositeDisposable()
+    if !editorsPromise
+      if event?.currentTarget.classList.contains('tab') || event?.currentTarget.classList.contains('file')
+        elemWithPath = event.currentTarget.querySelector('[data-path]')
+        params = {}
 
-    if event?.currentTarget.classList.contains('tab')
-      filePath = event.currentTarget.path
-      editorsPromise = @_getEditorsForDiffWithActive(filePath)
-    else if event?.currentTarget.classList.contains('list-item') && event?.currentTarget.classList.contains('file')
-      filePath = event.currentTarget.getPath()
-      editorsPromise = @_getEditorsForDiffWithActive(filePath)
+        if elemWithPath
+          params.path = elemWithPath.dataset.path
+        else if event.currentTarget.item
+          params.editor = event.currentTarget.item.copy() # copy here so still have it if disable closes it #124
+
+        @disable() # make sure we're in a good starting state
+        editorsPromise = @_getEditorsForDiffWithActive(params)
+      else
+        @disable() # make sure we're in a good starting state
+        editorsPromise = @_getEditorsForQuickDiff()
     else
-      editorsPromise = @_getEditorsForQuickDiff()
+      @disable() # make sure we're in a good starting state
 
     editorsPromise.then ((editors) ->
       if editors == null
         return
+      @editorSubscriptions = new CompositeDisposable()
       @_setupVisibleEditors(editors.editor1, editors.editor2)
       @diffView = new DiffView(editors)
 
@@ -173,9 +238,20 @@ module.exports = SplitDiff =
 
       # add the bottom UI panel
       if !@footerView?
-        @footerView = new FooterView(@_getConfig('ignoreWhitespace'))
+        ignoreWhitespace = @options.ignoreWhitespace ? @_getConfig('ignoreWhitespace')
+        @footerView = new FooterView(ignoreWhitespace, (@options.ignoreWhitespace?))
         @footerView.createPanel()
       @footerView.show()
+
+      # auto hide tree view while diffing #82
+      hideDocks = @options.hideDocks ? @_getConfig('hideDocks')
+      if hideDocks
+        @docksToReopen.left = atom.workspace.getLeftDock().isVisible()
+        @docksToReopen.right = atom.workspace.getRightDock().isVisible()
+        @docksToReopen.bottom = atom.workspace.getBottomDock().isVisible()
+        atom.workspace.getLeftDock().hide()
+        atom.workspace.getRightDock().hide()
+        atom.workspace.getBottomDock().hide()
 
       # update diff if there is no git repo (no onchange fired)
       if !@hasGitRepo
@@ -209,22 +285,18 @@ module.exports = SplitDiff =
           ]
         }]
       }
-      ).bind(this) # make sure the scope is correct
+    ).bind(this) # make sure the scope is correct
 
   # called by both diffPanes and the editor subscription to update the diff
   updateDiff: (editors) ->
     @isEnabled = true
-
-    # auto hide tree view while diffing #82
-    if @_getConfig('hideTreeView') && document.querySelector('.tree-view')
-      atom.commands.dispatch(atom.views.getView(atom.workspace), 'tree-view:toggle')
 
     # if there is a diff being computed in the background, cancel it
     if @process?
       @process.kill()
       @process = null
 
-    isWhitespaceIgnored = @_getConfig('ignoreWhitespace')
+    ignoreWhitespace = @options.ignoreWhitespace ? @_getConfig('ignoreWhitespace')
     editorPaths = @_createTempFiles(editors)
 
     # create the loading view if it doesn't exist yet
@@ -236,7 +308,7 @@ module.exports = SplitDiff =
     # --- kick off background process to compute diff ---
     {BufferedNodeProcess} = require 'atom'
     command = path.resolve __dirname, "./compute-diff.js"
-    args = [editorPaths.editor1Path, editorPaths.editor2Path, isWhitespaceIgnored]
+    args = [editorPaths.editor1Path, editorPaths.editor2Path, ignoreWhitespace]
     theOutput = ''
     stdout = (output) =>
       theOutput = output
@@ -265,20 +337,21 @@ module.exports = SplitDiff =
       @syncScroll.dispose()
       @syncScroll = null
 
-    leftHighlightType = 'added'
-    rightHighlightType = 'removed'
-    if @_getConfig('leftEditorColor') == 'red'
-      leftHighlightType = 'removed'
-    if @_getConfig('rightEditorColor') == 'green'
-      rightHighlightType = 'added'
-    @diffView.displayDiff(computedDiff, leftHighlightType, rightHighlightType, @_getConfig('diffWords'), @_getConfig('ignoreWhitespace'))
+    # grab the settings for the diff
+    addedColorSide = @options.addedColorSide ? @_getConfig('colors.addedColorSide')
+    diffWords = @options.diffWords ? @_getConfig('diffWords')
+    ignoreWhitespace = @options.ignoreWhitespace ? @_getConfig('ignoreWhitespace')
+    overrideThemeColors = @options.overrideThemeColors ? @_getConfig('colors.overrideThemeColors')
 
-    while window.splitDiffResolves?.length
-      window.splitDiffResolves.pop()(@diffView.getMarkerLayers())
+    @diffView.displayDiff(computedDiff, addedColorSide, diffWords, ignoreWhitespace, overrideThemeColors)
+
+    # give the marker layers to those registered with the service
+    while @splitDiffResolves?.length
+      @splitDiffResolves.pop()(@diffView.getMarkerLayers())
 
     @footerView?.setNumDifferences(@diffView.getNumDifferences())
 
-    scrollSyncType = @_getConfig('scrollSyncType')
+    scrollSyncType = @options.scrollSyncType ? @_getConfig('scrollSyncType')
     if scrollSyncType == 'Vertical + Horizontal'
       @syncScroll = new SyncScroll(editors.editor1, editors.editor2, true)
       @syncScroll.syncPositions()
@@ -293,7 +366,7 @@ module.exports = SplitDiff =
     editor2 = null
 
     # try to find the first two editors
-    panes = atom.workspace.getPanes()
+    panes = atom.workspace.getCenter().getPanes()
     for p in panes
       activeItem = p.getActiveItem()
       if atom.workspace.isTextEditor(activeItem)
@@ -305,13 +378,13 @@ module.exports = SplitDiff =
 
     # auto open editor panes so we have two to diff with
     if editor1 == null
-      editor1 = atom.workspace.buildTextEditor()
+      editor1 = atom.workspace.buildTextEditor({autoHeight: false})
       @wasEditor1Created = true
       # add first editor to the first pane
       panes[0].addItem(editor1)
       panes[0].activateItem(editor1)
     if editor2 == null
-      editor2 = atom.workspace.buildTextEditor()
+      editor2 = atom.workspace.buildTextEditor({autoHeight: false})
       @wasEditor2Created = true
       editor2.setGrammar(editor1.getGrammar())
       rightPaneIndex = panes.indexOf(atom.workspace.paneForItem(editor1)) + 1
@@ -327,24 +400,35 @@ module.exports = SplitDiff =
 
   # Gets the active editor and opens the specified file to the right of it
   # Returns a Promise which yields a value of {editor1: TextEditor, editor2: TextEditor}
-  _getEditorsForDiffWithActive: (filePath) ->
-    activeEditor = atom.workspace.getActiveTextEditor()
+  _getEditorsForDiffWithActive: (params) ->
+    filePath = params.path
+    editorWithoutPath = params.editor
+    activeEditor = atom.workspace.getCenter().getActiveTextEditor()
+
     if activeEditor?
       editor1 = activeEditor
       @wasEditor2Created = true
-      panes = atom.workspace.getPanes()
+      panes = atom.workspace.getCenter().getPanes()
       # get index of pane following active editor pane
       rightPaneIndex = panes.indexOf(atom.workspace.paneForItem(editor1)) + 1
       # pane is created if there is not one to the right of the active editor
       rightPane = panes[rightPaneIndex] || atom.workspace.paneForItem(editor1).splitRight()
-      if editor1.getPath() == filePath
-        # if diffing with itself, set filePath to null so an empty editor is
-        # opened, which will cause a git diff
-        filePath = null
-      editor2Promise = atom.workspace.openURIInPane(filePath, rightPane)
 
-      return editor2Promise.then (editor2) ->
-        return {editor1: editor1, editor2: editor2}
+      if params.path
+        filePath = params.path
+        if editor1.getPath() == filePath
+          # if diffing with itself, set filePath to null so an empty editor is
+          # opened, which will cause a git diff
+          filePath = null
+        editor2Promise = atom.workspace.openURIInPane(filePath, rightPane)
+
+        return editor2Promise.then (editor2) ->
+          return {editor1: editor1, editor2: editor2}
+      else if editorWithoutPath
+        editor2 = editorWithoutPath.copy()
+        rightPane.addItem(editor2)
+
+        return Promise.resolve({editor1: editor1, editor2: editor2})
     else
       noActiveEditorMsg = 'No active file found! (Try focusing a text editor)'
       atom.notifications.addWarning('Split Diff', {detail: noActiveEditorMsg, dismissable: false, icon: 'diff'})
@@ -370,15 +454,27 @@ module.exports = SplitDiff =
     editor1.unfoldAll()
     editor2.unfoldAll()
 
-    shouldNotify = !@_getConfig('muteNotifications')
-    softWrapMsg = 'Warning: Soft wrap enabled! (Line diffs may not align)'
-    if editor1.isSoftWrapped() && shouldNotify
-      atom.notifications.addWarning('Split Diff', {detail: softWrapMsg, dismissable: false, icon: 'diff'})
-    else if editor2.isSoftWrapped() && shouldNotify
+    muteNotifications = @options.muteNotifications ? @_getConfig('muteNotifications')
+    turnOffSoftWrap = @options.turnOffSoftWrap ? @_getConfig('turnOffSoftWrap')
+    if turnOffSoftWrap
+      shouldNotify = false
+      if editor1.isSoftWrapped()
+        @wasEditor1SoftWrapped = true
+        editor1.setSoftWrapped(false)
+        shouldNotify = true
+      if editor2.isSoftWrapped()
+        @wasEditor2SoftWrapped = true
+        editor2.setSoftWrapped(false)
+        shouldNotify = true
+      if shouldNotify && !muteNotifications
+        softWrapMsg = 'Soft wrap automatically disabled so lines remain in sync.'
+        atom.notifications.addWarning('Split Diff', {detail: softWrapMsg, dismissable: false, icon: 'diff'})
+    else if !muteNotifications && (editor1.isSoftWrapped() || editor2.isSoftWrapped())
+      softWrapMsg = 'Warning: Soft wrap enabled! Lines may not align.\n(Try "Turn Off Soft Wrap" setting)'
       atom.notifications.addWarning('Split Diff', {detail: softWrapMsg, dismissable: false, icon: 'diff'})
 
     buffer2LineEnding = (new BufferExtender(editor2.getBuffer())).getLineEnding()
-    if buffer2LineEnding != '' && (buffer1LineEnding != buffer2LineEnding) && editor1.getLineCount() != 1 && editor2.getLineCount() != 1 && shouldNotify
+    if buffer2LineEnding != '' && (buffer1LineEnding != buffer2LineEnding) && editor1.getLineCount() != 1 && editor2.getLineCount() != 1 && !muteNotifications
       # pop warning if the line endings differ and we haven't done anything about it
       lineEndingMsg = 'Warning: Line endings differ!'
       atom.notifications.addWarning('Split Diff', {detail: lineEndingMsg, dismissable: false, icon: 'diff'})
@@ -390,9 +486,10 @@ module.exports = SplitDiff =
       for directory, i in atom.project.getDirectories()
         if editor1Path is directory.getPath() or directory.contains(editor1Path)
           projectRepo = atom.project.getRepositories()[i]
-          if projectRepo? && projectRepo.repo?
+          if projectRepo?
+            projectRepo = projectRepo.getRepo(editor1Path) # fix repo for submodules #112
             relativeEditor1Path = projectRepo.relativize(editor1Path)
-            gitHeadText = projectRepo.repo.getHeadBlob(relativeEditor1Path)
+            gitHeadText = projectRepo.getHeadBlob(relativeEditor1Path)
             if gitHeadText?
               editor2.selectAll()
               editor2.insertText(gitHeadText)
@@ -429,8 +526,14 @@ module.exports = SplitDiff =
 
   # --- SERVICE API ---
   getMarkerLayers: () ->
-    new Promise (resolve, reject) ->
-      window.splitDiffResolves.push(resolve)
+    new Promise ((resolve, reject) ->
+      @splitDiffResolves.push(resolve)
+    ).bind(this)
+
+  diffEditors: (editor1, editor2, options) ->
+    @diffPanes(null, Promise.resolve({editor1: editor1, editor2: editor2}), options)
 
   provideSplitDiff: ->
-    getMarkerLayers: @getMarkerLayers
+    getMarkerLayers: @getMarkerLayers.bind(@contextForService)
+    diffEditors: @diffEditors.bind(@contextForService)
+    disable: @disable.bind(@contextForService)

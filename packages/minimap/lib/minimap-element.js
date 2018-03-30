@@ -5,6 +5,7 @@ const DOMStylesReader = require('./mixins/dom-styles-reader')
 const CanvasDrawer = require('./mixins/canvas-drawer')
 const include = require('./decorators/include')
 const element = require('./decorators/element')
+const elementResizeDetector = require('element-resize-detector')({strategy: 'scroll'})
 
 let Main, MinimapQuickSettingsElement, CompositeDisposable, Disposable, overlayStyle
 
@@ -26,8 +27,8 @@ const removeOverlayStyle = () => {
 const updateOverlayStyle = (basis) => {
   if (overlayStyle) {
     overlayStyle.textContent = `
-    atom-text-editor[with-minimap]::shadow atom-overlay,
-    atom-text-editor[with-minimap] atom-overlay {
+    atom-text-editor[with-minimap].editor > div,
+    atom-text-editor[with-minimap] > div {
       margin-left: ${basis}px;
     }
     `
@@ -226,6 +227,7 @@ class MinimapElement {
           ? ensureOverlayStyle()
           : removeOverlayStyle()
         this.updateMinimapFlexPosition()
+        this.measureHeightAndWidth(true, true)
       },
 
       'minimap.minimapScrollIndicator': (minimapScrollIndicator) => {
@@ -342,11 +344,33 @@ class MinimapElement {
    * @access private
    */
   attachedCallback () {
-    this.subscriptions.add(atom.views.pollDocument(() => { this.pollDOM() }))
+    if (typeof atom.views.pollDocument === 'function') {
+      this.subscriptions.add(atom.views.pollDocument(() => { this.pollDOM() }))
+    } else {
+      this.intersectionObserver = new IntersectionObserver((entries) => {
+        const {intersectionRect} = entries[entries.length - 1]
+        if (intersectionRect.width > 0 || intersectionRect.height > 0) {
+          this.measureHeightAndWidth(true, true)
+        }
+      })
+
+      this.intersectionObserver.observe(this)
+      if (this.isVisible()) {
+        this.measureHeightAndWidth(true, true)
+      }
+
+      const measureDimensions = () => { this.measureHeightAndWidth(false, false) }
+      elementResizeDetector.listenTo(this, measureDimensions)
+      this.subscriptions.add(new Disposable(() => { elementResizeDetector.removeListener(this, measureDimensions) }))
+
+      window.addEventListener('resize', measureDimensions)
+      this.subscriptions.add(new Disposable(() => { window.removeEventListener('resize', measureDimensions) }))
+    }
+
     this.measureHeightAndWidth()
     this.updateMinimapFlexPosition()
     this.attached = true
-    this.attachedToTextEditor = this.parentNode === this.getTextEditorElement()
+    this.attachedToTextEditor = this.queryParentSelector('atom-text-editor') === this.getTextEditorElement()
 
     if (this.attachedToTextEditor) {
       this.getTextEditorElement().setAttribute('with-minimap', '')
@@ -466,7 +490,7 @@ class MinimapElement {
     this.subscriptions.add(this.subscribeTo(this, {
       'mousewheel': (e) => {
         if (!this.standAlone) {
-          this.relayMousewheelEvent(e)
+          this.minimap.onMouseWheel(e)
         }
       }
     }))
@@ -691,7 +715,9 @@ class MinimapElement {
 
     this.subscriptions.add(this.minimap.onDidChangeDecorationRange((change) => {
       const {type} = change
-      if (type === 'line' || type === 'highlight-under' || type === 'background-custom') {
+      if (type === 'line' ||
+          type === 'highlight-under' ||
+          type === 'background-custom') {
         this.pendingBackDecorationChanges.push(change)
       } else {
         this.pendingFrontDecorationChanges.push(change)
@@ -800,10 +826,10 @@ class MinimapElement {
       })
     } else {
       this.applyStyles(this.visibleArea, {
-        width: visibleWidth + 'px',
-        height: minimap.getTextEditorScaledHeight() + 'px',
+        width: Math.round(visibleWidth) + 'px',
+        height: Math.round(minimap.getTextEditorScaledHeight()) + 'px',
         transform: this.makeTranslate(0, visibleAreaTop),
-        'border-left-width': visibleAreaLeft + 'px'
+        'border-left-width': Math.round(visibleAreaLeft) + 'px'
       })
     }
 
@@ -972,11 +998,16 @@ class MinimapElement {
     }
   }
 
-  updateCanvasesSize (canvasWidth = this.getFrontCanvas().width) {
+  updateCanvasesSize (canvasWidth) {
     const devicePixelRatio = this.minimap.getDevicePixelRatio()
     const maxCanvasHeight = this.height + this.minimap.getLineHeight()
     const newHeight = this.absoluteMode && this.adjustAbsoluteModeHeight ? Math.min(this.minimap.getHeight(), maxCanvasHeight) : maxCanvasHeight
     const canvas = this.getFrontCanvas()
+
+    if (canvasWidth == null) {
+      canvasWidth = canvas.width / devicePixelRatio
+    }
+
     if (canvasWidth !== canvas.width || newHeight !== canvas.height) {
       this.setCanvasesSize(
         canvasWidth * devicePixelRatio,
@@ -1094,21 +1125,6 @@ class MinimapElement {
     const ratio = deltaY / (this.minimap.getVisibleHeight() - this.minimap.getTextEditorScaledHeight())
 
     this.minimap.setTextEditorScrollTop(ratio * this.minimap.getTextEditorMaxScrollTop())
-  }
-
-  /**
-   * A method that relays the `mousewheel` events received by the MinimapElement
-   * to the `TextEditorElement`.
-   *
-   * @param  {MouseEvent} e the mouse event object
-   * @access private
-   */
-  relayMousewheelEvent (e) {
-    if (this.minimap.scrollIndependentlyOnMouseWheel()) {
-      this.minimap.onMouseWheel(e)
-    } else {
-      this.getTextEditorElement().component.onMouseWheel(e)
-    }
   }
 
   /**

@@ -317,6 +317,7 @@ class Main {
    */
   minimapForEditor (textEditor) {
     if (!textEditor) { return }
+    if (!this.editorsMinimaps) { return }
 
     let minimap = this.editorsMinimaps.get(textEditor)
 
@@ -390,7 +391,6 @@ class Main {
       let minimapElement = atom.views.getView(minimap)
 
       this.emitter.emit('did-create-minimap', minimap)
-
       minimapElement.attach()
     }))
   }

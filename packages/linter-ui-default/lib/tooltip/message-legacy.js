@@ -1,14 +1,13 @@
 /* @flow */
 
 import React from 'react'
-import { openExternally } from '../helpers'
 import type TooltipDelegate from './delegate'
 import type { MessageLegacy } from '../types'
 
 const NEWLINE = /\r\n|\n/
 let MESSAGE_NUMBER = 0
 
-export default class Message extends React.Component {
+class MessageElement extends React.Component {
   props: {
     message: MessageLegacy,
     delegate: TooltipDelegate,
@@ -56,9 +55,6 @@ export default class Message extends React.Component {
         { message.text }
       </span>
       {' '}
-      <a href="#" onClick={() => openExternally(message)}>
-        <span className="icon icon-link linter-icon" />
-      </a>
     </linter-message>)
   }
 
@@ -75,10 +71,9 @@ export default class Message extends React.Component {
       { delegate.showProviderName ? `${message.linterName}: ` : '' }
       { chunks[0] }
       {' '}
-      <a href="#" onClick={() => openExternally(message)}>
-        <span className="icon icon-link linter-icon" />
-      </a>
       { this.state.multiLineShow && chunks.slice(1) }
     </linter-message>)
   }
 }
+
+module.exports = MessageElement

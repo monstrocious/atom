@@ -14,7 +14,7 @@ atom-text-editor[with-minimap] {
   }
 }
 
-atom-text-editor, html {
+atom-text-editor, html {
   atom-text-editor-minimap {
     display: block;
     overflow: hidden;
@@ -29,6 +29,7 @@ atom-text-editor, html {
 
       &.left {
         order: 1;
+        position: absolute;
       }
     }
 
@@ -39,7 +40,7 @@ atom-text-editor, html {
       &.adjust-absolute-height {
         pointer-events: none;
 
-        canvas {
+        canvas, .minimap-visible-area {
           pointer-events: auto;
         }
       }
@@ -47,7 +48,6 @@ atom-text-editor, html {
       // absolute mode do nothing when the minimap is on the left, because
       // it would conflict with the editor's gutter
       &.left {
-        position: relative;
         right: initial;
       }
 

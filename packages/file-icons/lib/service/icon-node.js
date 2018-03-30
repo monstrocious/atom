@@ -171,13 +171,14 @@ class IconNode{
 		
 		else{
 			if(!path)
-				throw new TypeError("Cannot create icon-node for empty path");
+				return new Disposable();
 			
 			const rsrc = FileSystem.get(path, false, typeHint);
 			const node = new IconNode(rsrc, element, isTabIcon);
 			
 			const disp = new Disposable(() => {
 				iconDisposables.delete(node);
+				node.removeClasses();
 				node.destroy();
 			});
 			iconDisposables.set(node, disp);

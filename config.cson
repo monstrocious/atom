@@ -1,7 +1,11 @@
 "*":
+  "atom-package-deps":
+    ignored: []
   core:
     disabledPackages: [
+      "minimap"
       "whitespace"
+      "synced-sidebar"
     ]
     telemetryConsent: "no"
     themes: [
@@ -9,11 +13,11 @@
       "atom-material-syntax"
     ]
   editor:
-    fontSize: 12
     invisibles: {}
     tabLength: 4
   "exception-reporting":
     userId: "5a4a495f-99a9-50cd-f05c-85c2c77cc414"
+  "linter-ui-default": {}
   minimap:
     plugins:
       bookmarks: true

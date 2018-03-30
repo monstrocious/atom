@@ -2,40 +2,39 @@
   "_args": [
     [
       {
-        "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73039-4p9cse/package.tgz",
+        "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83347-ku4vc9.yj7mu6jemi/package.tgz",
         "scope": null,
         "escapedName": null,
         "name": null,
-        "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73039-4p9cse/package.tgz",
-        "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73039-4p9cse/package.tgz",
+        "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83347-ku4vc9.yj7mu6jemi/package.tgz",
+        "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83347-ku4vc9.yj7mu6jemi/package.tgz",
         "type": "local"
       },
-      "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-117229-73039-gwps91"
+      "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-118011-83347-p12w7p.fw8aug14i"
     ]
   ],
-  "_from": "../d-117229-73039-4p9cse/package.tgz",
-  "_id": "minimap-selection@4.4.0",
+  "_from": "../d-118011-83347-ku4vc9.yj7mu6jemi/package.tgz",
+  "_id": "minimap-selection@4.5.0",
   "_inCache": true,
-  "_installable": true,
   "_location": "/minimap-selection",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73039-4p9cse/package.tgz",
+    "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83347-ku4vc9.yj7mu6jemi/package.tgz",
     "scope": null,
     "escapedName": null,
     "name": null,
-    "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73039-4p9cse/package.tgz",
-    "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73039-4p9cse/package.tgz",
+    "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83347-ku4vc9.yj7mu6jemi/package.tgz",
+    "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83347-ku4vc9.yj7mu6jemi/package.tgz",
     "type": "local"
   },
   "_requiredBy": [
     "#USER"
   ],
-  "_resolved": "file:../d-117229-73039-4p9cse/package.tgz",
-  "_shasum": "bc51ff061564c1c82ba9403eaa2a7684719d1c64",
+  "_resolved": "file:../d-118011-83347-ku4vc9.yj7mu6jemi/package.tgz",
+  "_shasum": "6aa897ee3a46b285d6bcc2047b0c490db1c7906c",
   "_shrinkwrap": null,
-  "_spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73039-4p9cse/package.tgz",
-  "_where": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-117229-73039-gwps91",
+  "_spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83347-ku4vc9.yj7mu6jemi/package.tgz",
+  "_where": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-118011-83347-p12w7p.fw8aug14i",
   "bugs": {
     "url": "https://github.com/atom-minimap/minimap-selection/issues"
   },
@@ -59,11 +58,11 @@
   "main": "./lib/minimap-selection",
   "name": "minimap-selection",
   "optionalDependencies": {},
-  "readme": "# minimap-selection package [![Build Status](https://travis-ci.org/atom-minimap/minimap-selection.svg?branch=v4.1.0)](https://travis-ci.org/atom-minimap/minimap-selection)\n\nDisplay the buffer's selections on the minimap\n\n![Screenshot](https://github.com/atom-minimap/minimap-selection/blob/master/screenshot.gif?raw=true)\n\n## Settings\n\n### Highlight Cursors Lines\n\nWhen enabled, lines that holds a cursors will be highlighted in the minimap.\n\n### Customization\n\nThe selection color can be customized using the following CSS rule in your user stylesheet:\n\n```css\n.minimap-selection .region {\n  background: green;\n}\n```\n\nWhen the `Highlight Cursors Lines` setting is enabled the line's highlight color can be customized using the following CSS rule in your user stylesheet: \n\n```css\n.minimap-selection .cursor-line {\n  background: blue;\n}\n```\n",
+  "readme": "# minimap-selection package [![Build Status](https://travis-ci.org/atom-minimap/minimap-selection.svg?branch=v4.1.0)](https://travis-ci.org/atom-minimap/minimap-selection)\n\nDisplay the buffer's selections on the minimap\n\n![Screenshot](https://github.com/atom-minimap/minimap-selection/blob/master/screenshot.gif?raw=true)\n\n## Settings\n\n### Highlight Cursors Lines\n\nWhen enabled, lines that holds a cursors will be highlighted in the minimap.\n\n### Customization\n\nThe selection color can be customized using the following CSS rule in your user stylesheet:\n\n```css\n.minimap-selection .region {\n  background: green;\n}\n```\n\nWhen the `Highlight Cursors Lines` setting is enabled the line's highlight color can be customized using the following CSS rule in your user stylesheet:\n\n```css\n.minimap-selection .cursor-line {\n  background: blue;\n}\n```\n\nWhen the `Outline Selection` setting is enabled, the outline color can be customized using the following CSS rule:\n\n```css\n.minimap-selection .region-outline {\n  background: green;\n}\n```\n",
   "readmeFilename": "README.md",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/atom-minimap/minimap-selection.git"
   },
-  "version": "4.4.0"
+  "version": "4.5.0"
 }

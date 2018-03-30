@@ -2,40 +2,39 @@
   "_args": [
     [
       {
-        "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73031-11tjgd6/package.tgz",
+        "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83277-1dd1gxq.uiwfw7y14i/package.tgz",
         "scope": null,
         "escapedName": null,
         "name": null,
-        "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73031-11tjgd6/package.tgz",
-        "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73031-11tjgd6/package.tgz",
+        "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83277-1dd1gxq.uiwfw7y14i/package.tgz",
+        "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83277-1dd1gxq.uiwfw7y14i/package.tgz",
         "type": "local"
       },
-      "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-117229-73031-6eety9"
+      "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-118011-83277-cd7kpg.y95jc3di"
     ]
   ],
-  "_from": "../d-117229-73031-11tjgd6/package.tgz",
-  "_id": "minimap-highlight-selected@4.5.0",
+  "_from": "../d-118011-83277-1dd1gxq.uiwfw7y14i/package.tgz",
+  "_id": "minimap-highlight-selected@4.6.1",
   "_inCache": true,
-  "_installable": true,
   "_location": "/minimap-highlight-selected",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73031-11tjgd6/package.tgz",
+    "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83277-1dd1gxq.uiwfw7y14i/package.tgz",
     "scope": null,
     "escapedName": null,
     "name": null,
-    "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73031-11tjgd6/package.tgz",
-    "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73031-11tjgd6/package.tgz",
+    "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83277-1dd1gxq.uiwfw7y14i/package.tgz",
+    "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83277-1dd1gxq.uiwfw7y14i/package.tgz",
     "type": "local"
   },
   "_requiredBy": [
     "#USER"
   ],
-  "_resolved": "file:../d-117229-73031-11tjgd6/package.tgz",
-  "_shasum": "e1b99f88ecff37a867626881fbaf87e5126565d5",
+  "_resolved": "file:../d-118011-83277-1dd1gxq.uiwfw7y14i/package.tgz",
+  "_shasum": "6a794f616ac22fce6f97e23106b46bbda2d01d1d",
   "_shrinkwrap": null,
-  "_spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-73031-11tjgd6/package.tgz",
-  "_where": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-117229-73031-6eety9",
+  "_spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83277-1dd1gxq.uiwfw7y14i/package.tgz",
+  "_where": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-118011-83277-cd7kpg.y95jc3di",
   "bugs": {
     "url": "https://github.com/atom-minimap/minimap-highlight-selected/issues"
   },
@@ -47,11 +46,12 @@
     },
     "highlightSelected": {
       "versions": {
-        "1.0.0": "consumeHighlightSelectedServiceV1"
+        "2.0.0": "consumeHighlightSelectedServiceV2"
       }
     }
   },
   "dependencies": {
+    "atom-package-deps": "^4.4.1",
     "atom-utils": "0.0.1",
     "event-kit": ">= 0.7.2",
     "underscore-plus": "1.x"
@@ -66,11 +66,14 @@
   "main": "./lib/minimap-highlight-selected",
   "name": "minimap-highlight-selected",
   "optionalDependencies": {},
+  "package-deps": [
+    "highlight-selected"
+  ],
   "readme": "# minimap-highlight-selected package\n\nA minimap binding for the [highlight-selected package](https://github.com/richrace/highlight-selected).\n\n![Screenshot](https://github.com/atom-minimap/minimap-highlight-selected/blob/master/screenshot.png?raw=true)\n\n### Customization\n\nIf you want to change the color of the minimap highlights use the following CSS rules in your user stylesheet:\n\n```css\n/* The rule for normal highlights */\n.minimap .highlight-selected {\n  background: blue;\n}\n\n/* The rule for selected highlights */\n.minimap .highlight-selected.selected {\n  background: red;\n}\n```\n",
   "readmeFilename": "README.md",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/atom-minimap/minimap-highlight-selected.git"
   },
-  "version": "4.5.0"
+  "version": "4.6.1"
 }

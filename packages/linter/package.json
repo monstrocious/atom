@@ -2,40 +2,39 @@
   "_args": [
     [
       {
-        "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-72989-ablunj/package.tgz",
+        "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83221-oceywo.twqni2j4i/package.tgz",
         "scope": null,
         "escapedName": null,
         "name": null,
-        "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-72989-ablunj/package.tgz",
-        "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-72989-ablunj/package.tgz",
+        "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83221-oceywo.twqni2j4i/package.tgz",
+        "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83221-oceywo.twqni2j4i/package.tgz",
         "type": "local"
       },
-      "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-117229-72989-4beiuc"
+      "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-118011-83221-tlj5ao.dul8035wmi"
     ]
   ],
-  "_from": "../d-117229-72989-ablunj/package.tgz",
-  "_id": "linter@2.1.2",
+  "_from": "../d-118011-83221-oceywo.twqni2j4i/package.tgz",
+  "_id": "linter@2.2.0",
   "_inCache": true,
-  "_installable": true,
   "_location": "/linter",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-72989-ablunj/package.tgz",
+    "raw": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83221-oceywo.twqni2j4i/package.tgz",
     "scope": null,
     "escapedName": null,
     "name": null,
-    "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-72989-ablunj/package.tgz",
-    "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-72989-ablunj/package.tgz",
+    "rawSpec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83221-oceywo.twqni2j4i/package.tgz",
+    "spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83221-oceywo.twqni2j4i/package.tgz",
     "type": "local"
   },
   "_requiredBy": [
     "#USER"
   ],
-  "_resolved": "file:../d-117229-72989-ablunj/package.tgz",
-  "_shasum": "374be92b2034aee5b7fe40f35aeb3dacc5edf3d3",
+  "_resolved": "file:../d-118011-83221-oceywo.twqni2j4i/package.tgz",
+  "_shasum": "58c53b67851cb486e4d3d1d033438122fbf82104",
   "_shrinkwrap": null,
-  "_spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-117229-72989-ablunj/package.tgz",
-  "_where": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-117229-72989-4beiuc",
+  "_spec": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/d-118011-83221-oceywo.twqni2j4i/package.tgz",
+  "_where": "/private/var/folders/11/jwyh5kvx35s2yqg4nbhn0b2m467lt0/T/apm-install-dir-118011-83221-tlj5ao.dul8035wmi",
   "author": {
     "name": "steelbrain"
   },
@@ -47,33 +46,43 @@
       "type": "boolean",
       "description": "Lint tabs while they are still in preview status",
       "default": true,
-      "order": 2
+      "order": 1
     },
     "lintOnOpen": {
       "title": "Lint on Open",
       "description": "Lint files automatically when they are opened",
       "type": "boolean",
       "default": true,
-      "order": 3
+      "order": 2
     },
     "lintOnChange": {
       "title": "Lint on Change",
       "description": "Lint files while typing, without the need to save (only for supported providers)",
       "type": "boolean",
       "default": true,
-      "order": 4
+      "order": 3
     },
     "lintOnChangeInterval": {
       "title": "Lint on Change Interval",
       "description": "Interval at which linting is done as you type (in ms)",
       "type": "integer",
       "default": 300,
-      "order": 5
+      "order": 4
     },
     "ignoreGlob": {
       "title": "Ignore files matching this Glob",
       "type": "string",
       "default": "**/*.min.{js,css}",
+      "order": 5
+    },
+    "disabledProviders": {
+      "title": "Disabled providers",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Names of disabled linter providers",
+      "default": [],
       "order": 6
     }
   },
@@ -92,18 +101,17 @@
   },
   "dependencies": {
     "atom-package-deps": "^4.4.1",
-    "atom-select-list": "0.0.16",
+    "atom-select-list": "0.2.0",
     "cool-trim": "^1.1.1",
-    "eslint-config-steelbrain": "^2.0.0",
     "lodash.uniq": "^4.5.0",
     "minimatch": "^3.0.3",
-    "sb-config-file": "^3.0.2",
-    "sb-debounce": "^1.0.1"
+    "sb-debounce": "^1.0.1",
+    "sb-fs": "^3.0.0"
   },
   "description": "A Base Linter with Cow Powers",
   "devDependencies": {
-    "eslint-config-steelbrain": "^2.0.0",
-    "flow-bin": "^0.42.0",
+    "eslint-config-steelbrain": "^3.0.0",
+    "flow-bin": "^0.46.0",
     "jasmine-fix": "^1.0.0"
   },
   "engines": {
@@ -137,5 +145,5 @@
   "scripts": {
     "test": "(apm test) && (flow check) && (eslint . )"
   },
-  "version": "2.1.2"
+  "version": "2.2.0"
 }

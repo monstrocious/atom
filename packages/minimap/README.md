@@ -6,6 +6,8 @@
 
 A preview of the full source code.
 
+This package is sponsored and maintained by [Kite](https://kite.com/docs?source=minimap).
+
 ![Minimap Screenshot](https://github.com/atom-minimap/minimap/blob/master/resources/screenshot.png?raw=true)
 <small>In the screenshot above the minimap-git-diff and minimap-highlight-selected plugins are activated.</small>
 
@@ -28,7 +30,7 @@ Below is the list of available plugins so far:
 
 Package|Description
 ---|---
-[Auto-Hide](https://atom.io/packages/minimap-autohide)|Hides the Minimap while editing.
+[Auto-Hider](https://atom.io/packages/minimap-autohider)|Hides the Minimap while editing.
 [Bookmarks](https://atom.io/packages/minimap-bookmarks)|Displays Atom bookmarks.
 [Code Glance](https://atom.io/packages/minimap-codeglance)|Shows the code that's under the mouse cursor when hovering the Minimap.
 [Cursor Line](https://atom.io/packages/minimap-cursorline)|Highlights the line with cursor.
@@ -339,8 +341,6 @@ html {
 }
 
 ```
-
-
 
 ### ASCII Art Comments
 
